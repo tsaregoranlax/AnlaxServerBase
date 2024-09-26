@@ -1,0 +1,69 @@
+name: Build and Upload Release
+
+on:
+  push:
+    branches:
+      - master  # Запускать на ветке master
+  workflow_dispatch:   # Позволяет запускать вручную из интерфейса GitHub
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        configuration: [ 'Release R20', 'Release R21', 'Release R22', 'Release R23', 'Release R24', 'Release R25' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'  # Установить нужную версию .NET SDK
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration ${{ matrix.configuration }}
+
+      - name: Publish output
+        run: dotnet publish -c ${{ matrix.configuration }} -o ./output
+
+      - name: Archive output
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.configuration }}-build
+          path: ./output
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.AnlaxD }}
+        with:
+          tag_name: 'v1.0.${{ github.run_number }}'  # Версия релиза
+          release_name: 'Release ${{ github.run_number }}'
+          body: |
+            Автоматическая сборка и релиз.
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.AnlaxD }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output
+          asset_name: release_build.zip
+          asset_content_type: application/zip
