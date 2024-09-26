@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master  # Запускать на ветке master
+      - dev     # Также запускать на ветке dev
   workflow_dispatch:   # Позволяет запускать вручную из интерфейса GitHub
 
 jobs:
@@ -33,7 +34,7 @@ jobs:
         run: dotnet publish -c ${{ matrix.configuration }} -o ./output
 
       - name: Archive output
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Обновлённая версия upload-artifact
         with:
           name: ${{ matrix.configuration }}-build
           path: ./output
@@ -49,21 +50,21 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.AnlaxD }}
+          GITHUB_TOKEN: ${{ secrets.ANLAXD }}  # Используем ваш токен ANLAXD
         with:
           tag_name: 'v1.0.${{ github.run_number }}'  # Версия релиза
           release_name: 'Release ${{ github.run_number }}'
           body: |
-            Автоматическая сборка и релиз.
+            Автоматическая сборка и релиз для конфигурации: ${{ matrix.configuration }}.
           draft: false
           prerelease: false
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.AnlaxD }}
+          GITHUB_TOKEN: ${{ secrets.ANLAXD }}  # Используем ваш токен ANLAXD
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./output
-          asset_name: release_build.zip
+          asset_name: ${{ matrix.configuration }}-release_build.zip
           asset_content_type: application/zip
