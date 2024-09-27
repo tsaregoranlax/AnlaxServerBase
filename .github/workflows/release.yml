@@ -22,10 +22,6 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
-      - name: Install .NET Framework SDK
-        run: |
-          choco install netfx --version=4.8.0
-
       - name: Restore NuGet packages
         run: dotnet restore AnlaxBase.sln
 
