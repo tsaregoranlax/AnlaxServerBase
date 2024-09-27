@@ -31,7 +31,7 @@ jobs:
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
+        tag_name: 'v1.0.0'  # Use a specific version tag instead
         name: AnlaxBase.dll
         files: ./bin/x64/Release R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
@@ -49,7 +49,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: 'v1.0.0'  # Make sure to use the same tag name as above
+        release_name: Release v1.0.0
         draft: false
         prerelease: false
