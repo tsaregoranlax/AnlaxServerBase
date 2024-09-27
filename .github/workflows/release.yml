@@ -1,11 +1,11 @@
-name: Build and Upload Release
+name: Build and Release
 
 on:
   push:
     branches:
-      - master  # Запускать на ветке master
-      - dev     # Также запускать на ветке dev
-  workflow_dispatch:   # Позволяет запускать вручную из интерфейса GitHub
+      - master
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -13,63 +13,23 @@ jobs:
 
     strategy:
       matrix:
-        configuration: [ 'Release R20', 'Release R21', 'Release R22', 'Release R23', 'Release R24', 'Release R25' ]
-        targetFramework: [ 'net48', 'net8.0-windows' ]
+        configuration: [ 'Release R20', 'Release R21', 'Release R22', 'Release R23', 'Release R24' ]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '8.0.x'
-          include-prerelease: true
-
-      - name: Install .NET Framework 4.8 SDK
-        run: choco install dotnetfx --version=4.8.0.20190930
 
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build project
-        run: dotnet build --configuration ${{ matrix.configuration }} /p:TargetFramework=${{ matrix.targetFramework }}
+        run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Publish output
         run: dotnet publish -c ${{ matrix.configuration }} -o ./output
 
-      - name: Archive output
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.configuration }}-build
           path: ./output
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANLAXD }}  # Используем ваш токен ANLAXD
-        with:
-          tag_name: 'v1.0.${{ github.run_number }}'  # Версия релиза
-          release_name: 'Release ${{ github.run_number }}'
-          body: |
-            Автоматическая сборка и релиз для конфигурации: ${{ matrix.configuration }}.
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANLAXD }}  # Используем ваш токен ANLAXD
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output
-          asset_name: ${{ matrix.configuration }}-release_build.zip
-          asset_content_type: application/zip
