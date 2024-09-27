@@ -33,7 +33,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
+    <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).0.6" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="IconRevitPanel.Designer.cs">
