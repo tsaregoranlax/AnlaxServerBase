@@ -37,15 +37,17 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: v1.8  # Замените на нужный вам тег
-        release_name: Release v1.8  # Замените на нужное имя релиза
+        tag_name: v2.0  # Замените на нужный вам тег
+        release_name: Release v2.0  # Замените на нужное имя релиза
         draft: false
         prerelease: false
+
 
     - name: Upload DLL as release asset
       uses: softprops/action-gh-release@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "bin/x64/Release R22/net48/AnlaxBase.dll"
-        asset_name: AnlaxBase.dll
-        asset_content_type: application/octet-stream
+        files: |
+          bin/x64/Release R22/net48/AnlaxBase.dll
+        name: AnlaxBase.dll
+        token: ${{ secrets.GITHUB_TOKEN }}
