@@ -28,6 +28,9 @@ jobs:
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
+    - name: Create output directory
+      run: mkdir output
+
     - name: Create zip file using PowerShell
       run: |
         Compress-Archive -Path ./bin/Release/* -DestinationPath ./output/release_build.zip
