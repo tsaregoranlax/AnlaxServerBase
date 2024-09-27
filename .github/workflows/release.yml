@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         configuration: [ 'Release R20', 'Release R21', 'Release R22', 'Release R23', 'Release R24', 'Release R25' ]
+        targetFramework: [ 'net48', 'net8.0-windows' ]
 
     steps:
       - name: Checkout repository
@@ -22,19 +23,17 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '8.0.x'  # Устанавливаем .NET SDK 8.0
+          dotnet-version: '8.0.x'
           include-prerelease: true
 
-      # Добавим поддержку старой версии .NET Framework 4.8
       - name: Install .NET Framework 4.8 SDK
-        run: |
-          choco install dotnetfx --version=4.8.0.20190930  # Устанавливаем .NET Framework SDK
+        run: choco install dotnetfx --version=4.8.0.20190930
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore --configfile nuget.config
 
       - name: Build project
-        run: dotnet build --configuration ${{ matrix.configuration }}
+        run: dotnet build --configuration ${{ matrix.configuration }} /p:TargetFramework=${{ matrix.targetFramework }}
 
       - name: Publish output
         run: dotnet publish -c ${{ matrix.configuration }} -o ./output
