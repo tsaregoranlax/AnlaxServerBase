@@ -22,12 +22,12 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
-      - name: Install NuGet
+      - name: Install .NET Framework SDK
         run: |
-          choco install nuget.commandline
+          choco install netfx --version=4.8.0
 
       - name: Restore NuGet packages
-        run: nuget restore AnlaxBase.sln
+        run: dotnet restore AnlaxBase.sln
 
       - name: Build the Solution
         run: msbuild AnlaxBase.sln /p:Configuration="${{ matrix.configuration }}"
