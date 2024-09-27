@@ -23,7 +23,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Restore NuGet packages
-        run: dotnet restore AnlaxBase.sln
+        run: dotnet restore AnlaxBase.sln /p:AnlaxPackageVersion="2022.0.6"
 
       - name: Build the Solution
         run: msbuild AnlaxBase.sln /p:Configuration="${{ matrix.configuration }}"
