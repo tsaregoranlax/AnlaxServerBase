@@ -8,18 +8,25 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug R22|Any CPU = Debug R22|Any CPU
+		Debug R22|x64 = Debug R22|x64
 		Release R22|Any CPU = Release R22|Any CPU
+		Release R22|x64 = Release R22|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Debug R22|Any CPU.ActiveCfg = Debug R22|Any CPU
-		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Debug R22|Any CPU.Build.0 = Debug R22|Any CPU
+		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Debug R22|Any CPU.ActiveCfg = Release R22|Any CPU
+		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Debug R22|Any CPU.Build.0 = Release R22|Any CPU
+		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Debug R22|x64.ActiveCfg = Release R22|x64
+		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Debug R22|x64.Build.0 = Release R22|x64
 		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Release R22|Any CPU.ActiveCfg = Release R22|Any CPU
 		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Release R22|Any CPU.Build.0 = Release R22|Any CPU
+		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Release R22|x64.ActiveCfg = Release R22|x64
+		{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}.Release R22|x64.Build.0 = Release R22|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		    SolutionGuid = {F51660A1-7192-4C25-8F05-48D63B536FCA}
+		SolutionGuid = {D46CA748-0DB8-45BB-8C31-651333356953}
 	EndGlobalSection
 EndGlobal

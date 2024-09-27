@@ -7,6 +7,7 @@
     <PublishAddinFiles>true</PublishAddinFiles>
     <Configurations>Release R22;Debug R22</Configurations>
     <TargetFrameworks>net48</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.Contains('R22'))">
