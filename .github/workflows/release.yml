@@ -40,7 +40,7 @@ jobs:
         prerelease: false
 
     - name: Upload DLL as release asset
-      uses: softprops/action-gh-release@v2.1
+      uses: softprops/action-gh-release@v1
       with:
         files: |
           bin/x64/Release R22/net48/AnlaxBase.dll
