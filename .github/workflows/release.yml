@@ -23,7 +23,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Setup NuGet
-        run: NuGet/setup-nuget@v.1.0.2
+        run: NuGet/setup-nuget@v1.0.2
 
       - name: Restore Nuget packages
         run: nuget restore AnlaxBase.sln
