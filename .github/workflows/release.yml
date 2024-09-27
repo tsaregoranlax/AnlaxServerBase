@@ -48,16 +48,16 @@ jobs:
       run: pwd
 
     - name: List files in bin directory
-      run: dir ./bin
+      run: ls -la ./bin
 
     - name: List files in Release directory
-      run: dir "./bin/x64"
+      run: ls -la "./bin/x64"
 
     - name: List files in Release R22 directory
-      run: dir "./bin/x64/Release R22"
+      run: ls -la "./bin/x64/Release R22"
 
     - name: List files in net48 directory
-      run: dir "./bin/x64/Release R22/net48"
+      run: ls -la "./bin/x64/Release R22/net48"
 
     - name: Upload DLL as release asset
       uses: actions/upload-release-asset@v1
