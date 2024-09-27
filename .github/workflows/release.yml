@@ -39,25 +39,19 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: v1.2
-        release_name: Release v1.2
+        tag_name: v1.3
+        release_name: Release v1.3
         draft: false
         prerelease: false
 
     - name: Check current directory
       run: pwd
 
-    - name: List files in bin directory
-      run: ls -la ./bin
+    - name: List all files in the repository
+      run: ls -laR
 
-    - name: List files in Release directory
-      run: ls -la "./bin/x64"
-
-    - name: List files in Release R22 directory
-      run: ls -la "./bin/x64/Release R22"
-
-    - name: List files in net48 directory
-      run: ls -la "./bin/x64/Release R22/net48"
+    - name: Build the solution
+      run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
     - name: Upload DLL as release asset
       uses: actions/upload-release-asset@v1
