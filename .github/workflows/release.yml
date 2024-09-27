@@ -49,7 +49,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: 'v1.0.0'  # Make sure to use the same tag name as above
-        release_name: Release v1.0.0
+        tag_name: 'v1.2.0'  # Make sure to use the same tag name as above
+        release_name: Release v1.2.0
         draft: false
         prerelease: false
