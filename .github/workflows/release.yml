@@ -28,21 +28,13 @@ jobs:
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
-    - name: Create output directory
-      run: mkdir output
-
-    - name: Create zip file using PowerShell
-      run: |
-        Compress-Archive -Path ./bin/Release/* -DestinationPath ./output/release_build.zip
-      shell: pwsh
-
-    - name: Upload build as release asset
+    - name: Upload DLL as release asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: output/release_build.zip
-        asset_name: release_build.zip
-        asset_content_type: application/zip
+        asset_path: ./bin/x64/Release R22/net48/AnlaxBase.dll
+        asset_name: AnlaxBase.dll
+        asset_content_type: application/octet-stream
 
   release:
     needs: build
