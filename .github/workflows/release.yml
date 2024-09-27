@@ -19,24 +19,21 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
-    - name: Setup NuGet
-      run: nuget restore AnlaxBase.sln
-
-    - name: Restore dependencies
-      run: dotnet restore AnlaxBase.sln /p:AnlaxPackageVersion="2022.0.6"
+    - name: Restore NuGet dependencies with version
+      run: dotnet restore AnlaxBase.sln /p:Configuration="Release R22" /p:AnlaxPackageVersion="2022.0.6"
 
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
-    - name: Extract version from build
-      run: echo "::set-output name=revit_version::$(dotnet msbuild -noLogo -verbosity:q -target:RevitVersion)"
+    - name: Create release tag
+      run: git tag v1.0.0 && git push origin v1.0.0
 
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: 'v1.0.5'  # Use a specific version tag instead
-        name: Release R22.dll
-        files: ./bin/x64/Release R22/net48/AnlaxBase.dll
+        tag_name: 'v1.2.0'  # Указание тега релиза
+        name: AnlaxBase.dll
+        files: ./bin/x64/Release\ R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
