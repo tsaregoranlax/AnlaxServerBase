@@ -28,22 +28,28 @@ jobs:
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
+    - name: Upload AnlaxBase.dll as release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        name: AnlaxBase.dll
+        files: ./bin/x64/Release R22/net48/AnlaxBase.dll
+        token: ${{ secrets.ANLAXD }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.ANLAXD }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Create GitHub Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: v2.1  # ”кажите тег здесь, например, v1.0
-        release_name: Release v2.1  # ”кажите им€ релиза здесь
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
-
-    - name: Upload DLL as release asset
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          bin/x64/Release R22/net48/AnlaxBase.dll
-        name: AnlaxBase.dll
-        tag_name: v1.0  # ”бедитесь, что тег совпадает с тем, который вы указали в предыдущем шаге
-        token: ${{ secrets.GITHUB_TOKEN }}
