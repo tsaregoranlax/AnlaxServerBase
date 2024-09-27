@@ -3,7 +3,7 @@ name: Release R22
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
