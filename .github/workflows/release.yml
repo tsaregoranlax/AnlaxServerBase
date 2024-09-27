@@ -22,7 +22,13 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '8.0.x'  # Установить нужную версию .NET SDK
+          dotnet-version: '8.0.x'  # Устанавливаем .NET SDK 8.0
+          include-prerelease: true
+
+      # Добавим поддержку старой версии .NET Framework 4.8
+      - name: Install .NET Framework 4.8 SDK
+        run: |
+          choco install dotnetfx --version=4.8.0.20190930  # Устанавливаем .NET Framework SDK
 
       - name: Restore dependencies
         run: dotnet restore
@@ -34,7 +40,7 @@ jobs:
         run: dotnet publish -c ${{ matrix.configuration }} -o ./output
 
       - name: Archive output
-        uses: actions/upload-artifact@v3  # Обновлённая версия upload-artifact
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.configuration }}-build
           path: ./output
