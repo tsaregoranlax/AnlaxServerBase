@@ -44,13 +44,25 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: List files in Release folder
-      run: dir ./bin/x64/Release R22/net48
+    - name: Check current directory
+      run: pwd
+
+    - name: List files in bin directory
+      run: dir ./bin
+
+    - name: List files in Release directory
+      run: dir "./bin/x64"
+
+    - name: List files in Release R22 directory
+      run: dir "./bin/x64/Release R22"
+
+    - name: List files in net48 directory
+      run: dir "./bin/x64/Release R22/net48"
 
     - name: Upload DLL as release asset
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/x64/Release R22/net48/AnlaxBase.dll
-        asset_name: AnlaxBase.dll
-        asset_content_type: application/octet-stream
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: "./bin/x64/Release R22/net48/AnlaxBase.dll"
+          asset_name: AnlaxBase.dll
+          asset_content_type: application/octet-stream
