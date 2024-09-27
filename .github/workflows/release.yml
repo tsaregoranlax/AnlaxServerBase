@@ -19,29 +19,26 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
+    - name: List project files
+      run: ls -R  # Проверяем, где находится файл .sln
+
     - name: Setup NuGet
-      run: nuget restore AnlaxBase/AnlaxBase.sln
+      run: nuget restore AnlaxBase.sln  # Убедитесь, что это правильный путь
 
     - name: Restore dependencies
-      run: dotnet restore AnlaxBase/AnlaxBase.sln /p:AnlaxPackageVersion="2022.0.6"
+      run: dotnet restore AnlaxBase.sln /p:AnlaxPackageVersion="2022.0.6"
 
     - name: Build the solution
-      run: dotnet build AnlaxBase/AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
+      run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
     - name: Check current directory
       run: pwd
-
-    - name: List all files in the repository
-      run: ls -laR
-
-    - name: Create output directory
-      run: mkdir output
 
     - name: Upload DLL as release asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "AnlaxBase/bin/x64/Release R22/net48/AnlaxBase.dll"
+        asset_path: "bin/x64/Release R22/net48/AnlaxBase.dll"  # Проверьте правильность пути
         asset_name: AnlaxBase.dll
         asset_content_type: application/octet-stream
 
@@ -56,7 +53,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: v1.5  # Замените на нужный вам тег
-        release_name: Release v1.5  # Замените на нужное имя релиза
+        tag_name: v1.0  # Замените на нужный вам тег
+        release_name: Release v1.0  # Замените на нужное имя релиза
         draft: false
         prerelease: false
