@@ -28,11 +28,14 @@ jobs:
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Release R22" /p:Platform="x64"
 
+    - name: Extract version from build
+      run: echo "::set-output name=revit_version::$(dotnet msbuild -noLogo -verbosity:q -target:RevitVersion)"
+
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: 'v1.0.1'  # Use a specific version tag instead
-        name: Release R22
+        tag_name: 'v1.0.5'  # Use a specific version tag instead
+        name: Release R22.dll
         files: ./bin/x64/Release R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
       env:
