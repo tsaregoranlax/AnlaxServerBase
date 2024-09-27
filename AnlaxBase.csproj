@@ -5,35 +5,43 @@
     <PlatformTarget>x64</PlatformTarget>
     <ImplicitUsings>true</ImplicitUsings>
     <PublishAddinFiles>true</PublishAddinFiles>
-    <Configurations>$(Configurations);Release R20;Release R21;Release R22;Release R23;Release R24;Release R25</Configurations>
+    <Configurations>Debug R20;Debug R21;Debug R22;Debug R23;Debug R24;Debug R25;Release R20;Release R21;Release R22;Release R23;Release R24;Release R25</Configurations>
   </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration.Contains('R20'))">
     <RevitVersion>2020.0.6</RevitVersion>
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration.Contains('R21'))">
     <RevitVersion>2021.0.6</RevitVersion>
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration.Contains('R22'))">
     <RevitVersion>2022.0.6</RevitVersion>
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration.Contains('R23'))">
     <RevitVersion>2023.0.6</RevitVersion>
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration.Contains('R24'))">
     <RevitVersion>2024.0.6</RevitVersion>
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration.Contains('R25'))">
     <RevitVersion>2025.0.6</RevitVersion>
     <TargetFramework>net8.0-windows</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion)" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="IconRevitPanel.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -41,15 +49,18 @@
       <DependentUpon>IconRevitPanel.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Update="IconRevitPanel.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>IconRevitPanel.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
   <ItemGroup>
     <Folder Include="IncludeDll\" />
   </ItemGroup>
+
   <ItemGroup>
     <None Include=".github\workflows\release.yml" />
   </ItemGroup>

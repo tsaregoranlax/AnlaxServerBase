@@ -20,16 +20,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Restore dependencies
-        run: dotnet restore  # ”бираем параметр --framework
+        run: dotnet restore
 
       - name: Build project
-        run: dotnet build --configuration ${{ matrix.configuration }} --framework net48  # ”казываем фреймворк только здесь
+        run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Publish output
-        run: dotnet publish -c ${{ matrix.configuration }} --framework net48 -o ./output  # явно указываем фреймворк net48
+        run: dotnet publish -c ${{ matrix.configuration }} -o ./output
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.configuration }}-build
           path: ./output
+
