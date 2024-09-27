@@ -19,18 +19,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
 
-      - name: Build project
-        run: dotnet build --configuration ${{ matrix.configuration }}
+      - name: Setup NuGet
+        run: NuGet/setup-nuget@v.1.0.2
 
-      - name: Publish output
-        run: dotnet publish -c ${{ matrix.configuration }} -o ./output
+      - name: Restore Nuget packages
+        run: nuget restore AnlaxBase.sln
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.configuration }}-build
-          path: ./output
+      - name: Build the Solution
+        run: msbuild AnlaxBase.sln
+
 
