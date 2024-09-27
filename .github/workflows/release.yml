@@ -30,7 +30,7 @@ jobs:
         run: choco install dotnetfx --version=4.8.0.20190930
 
       - name: Restore dependencies
-        run: dotnet restore --configfile nuget.config
+        run: dotnet restore
 
       - name: Build project
         run: dotnet build --configuration ${{ matrix.configuration }} /p:TargetFramework=${{ matrix.targetFramework }}
