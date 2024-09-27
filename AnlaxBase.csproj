@@ -7,7 +7,7 @@
     <PublishAddinFiles>true</PublishAddinFiles>
     <Configurations>Release R22;Debug R22</Configurations>
     <TargetFrameworks>net48</TargetFrameworks>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AnlaxPackage" Version="2022.0.6" />
+    <PackageReference Include="AnlaxPackage" Version="$(RevitVersion)" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
   </ItemGroup>
 

@@ -31,8 +31,8 @@ jobs:
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: 'v1.0.0'  # Use a specific version tag instead
-        name: AnlaxBase.dll
+        tag_name: 'v1.0.1'  # Use a specific version tag instead
+        name: Release R22
         files: ./bin/x64/Release R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
       env:
