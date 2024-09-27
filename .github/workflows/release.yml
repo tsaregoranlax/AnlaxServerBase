@@ -1,45 +1,59 @@
-name: Release R22
+name: Build and Release
 
 on:
   push:
     branches:
       - master
+      - releases/*
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
 
-      - name: Restore Nuget packages
-        run: nuget restore AnlaxBase.sln
+    - name: Setup NuGet
+      run: nuget restore AnlaxBase.sln
 
-      - name: Build the Solution
-        run: msbuild AnlaxBase.sln /p:Configuration="Release R22"
+    - name: Restore dependencies
+      run: dotnet restore AnlaxBase.sln /p:AnlaxPackageVersion="2022.0.6"
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANLAXD }}  # Используем ваш токен ANLAXD
-        with:
-          tag_name: 'v1.0.${{ github.run_number }}'  # Версия релиза
-          release_name: 'Release R22 - ${{ github.run_number }}'
-          body: |
-            Автоматическая сборка и релиз для конфигурации: Release R22.
-          draft: false
-          prerelease: false
+    - name: Build the solution
+      run: dotnet build AnlaxBase.sln --configuration Release
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANLAXD }}  # Используем ваш токен ANLAXD
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output
-          asset_name: Release_R22_build.zip
-          asset_content_type: application/zip
+    - name: Archive the build output
+      run: |
+        mkdir output
+        zip -r output/release_build.zip ./bin/Release
+
+    - name: Upload build as release asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: output/release_build.zip
+        asset_name: release_build.zip
+        asset_content_type: application/zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false

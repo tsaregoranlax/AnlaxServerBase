@@ -32,7 +32,6 @@
       <LastGenOutput>IconRevitPanel.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="IncludeDll\" />
   </ItemGroup>
