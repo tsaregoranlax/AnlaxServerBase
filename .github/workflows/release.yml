@@ -39,8 +39,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
       with:
-        tag_name: v1.0
-        release_name: Release v1.0
+        tag_name: v1.1
+        release_name: Release v1.1
         draft: false
         prerelease: false
 
