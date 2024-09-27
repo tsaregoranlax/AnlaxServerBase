@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - releases/*
   workflow_dispatch:
 
 jobs:
@@ -27,7 +26,7 @@ jobs:
       run: dotnet restore AnlaxBase.sln /p:AnlaxPackageVersion="2022.0.6"
 
     - name: Build the solution
-      run: dotnet build AnlaxBase.sln --configuration Release
+      run: dotnet build AnlaxBase.sln --configuration "Release R22" --platform "x64"
 
     - name: Archive the build output
       run: |
