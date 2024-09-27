@@ -22,8 +22,9 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.2
+      - name: Install NuGet
+        run: |
+          choco install nuget.commandline
 
       - name: Restore NuGet packages
         run: nuget restore AnlaxBase.sln
@@ -69,5 +70,3 @@ jobs:
           asset_path: ./output
           asset_name: ${{ matrix.configuration }}-release_build.zip
           asset_content_type: application/zip
-
-
