@@ -20,7 +20,7 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore NuGet dependencies with version
-      run: dotnet restore AnlaxBase.sln /p:Configuration="Debug R22" /p:AnlaxPackageVersion="2022.0.6"
+      run: dotnet restore AnlaxBase.sln /p:Configuration="Debug R22"
 
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Debug R22" /p:Platform="x64"
