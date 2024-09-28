@@ -25,10 +25,10 @@ jobs:
     - name: Build the solution
       run: dotnet build AnlaxBase.sln --configuration "Debug R22" /p:Platform="x64"
 
-    - name: Check if tag 'lastDebug' exists and delete the release
+    - name: Check if tag 'DebugR22Last' exists and delete the release
       run: |
-        if gh release view lastDebug; then
-          gh release delete lastDebug -y
+        if gh release view DebugR22Last; then
+          gh release delete DebugR22Last -y
         fi
       shell: bash  # Указываем, что нужно использовать bash
       env:
@@ -37,9 +37,36 @@ jobs:
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: 'lastDebug'  # Используем тег lastDebug
+        tag_name: 'DebugR22Last'  # Используем тег lastDebug
         name: Debug R22
         files: ./bin/x64/Debug\ R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
+
+
+    - name: Restore NuGet dependencies with version
+      run: dotnet restore AnlaxBase.sln /p:Configuration="Debug R25"
+
+    - name: Build the solution
+      run: dotnet build AnlaxBase.sln --configuration "Debug R25" /p:Platform="x64"
+
+    - name: Check if tag 'DebugR25Last' exists and delete the release
+      run: |
+        if gh release view DebugR25Last; then
+          gh release delete DebugR25Last -y
+        fi
+      shell: bash  # Указываем, что нужно использовать bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.ANLAXD }}
+
+    - name: Upload AnlaxBase.dll as release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: 'DebugR25Last'  # Используем тег lastDebug
+        name: Debug R25
+        files: ./bin/x64/Debug\ R25/net8.0-windows/AnlaxBase.dll
+        token: ${{ secrets.ANLAXD }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.ANLAXD }}
+
