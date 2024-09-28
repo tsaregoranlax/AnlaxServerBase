@@ -32,7 +32,7 @@ jobs:
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ steps.get_tag.outputs.RELEASE_TAG }}  # Используем ID для получения тега
+        tag_name: ${{ github.ref }}  # Используем ID для получения тега
         name: Debug R22
         files: ./bin/x64/Debug\ R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
