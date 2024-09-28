@@ -42,6 +42,7 @@
     <Folder Include="IncludeDll\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\workflows\debug.yml" />
     <None Include=".github\workflows\release.yml" />
   </ItemGroup>
 </Project>
