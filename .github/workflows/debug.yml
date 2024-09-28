@@ -23,7 +23,7 @@ jobs:
       run: dotnet restore AnlaxBase.sln /p:Configuration="Debug R22"
 
     - name: Build the solution
-      run: dotnet build AnlaxBase.sln --configuration "Debug R22" /p:Platform="x64"
+      run: dotnet build AnlaxBase.sln --configuration "Debug R22"
 
     - name: Check if tag 'DebugR22Last' exists and delete the release
       run: |
@@ -49,7 +49,7 @@ jobs:
       run: dotnet restore AnlaxBase.sln /p:Configuration="Debug R25"
 
     - name: Build the solution
-      run: dotnet build AnlaxBase.sln --configuration "Debug R25" /p:Platform="x64"
+      run: dotnet build AnlaxBase.sln --configuration "Debug R25"
 
     - name: Check if tag 'DebugR25Last' exists and delete the release
       run: |
