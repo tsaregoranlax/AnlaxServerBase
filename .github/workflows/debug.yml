@@ -30,6 +30,7 @@ jobs:
         if gh release view lastDebug; then
           gh release delete lastDebug -y
         fi
+      shell: bash  # ”казываем, что нужно использовать bash
       env:
         GITHUB_TOKEN: ${{ secrets.ANLAXD }}
 
