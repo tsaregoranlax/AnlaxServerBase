@@ -9,10 +9,6 @@
     <Platforms>x64</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-  </PropertyGroup>
-
   <PropertyGroup Condition="$(Configuration.Contains('R22'))">
     <RevitVersion>2022.0.6</RevitVersion>
     <TargetFramework>net48</TargetFramework>
