@@ -26,12 +26,13 @@ jobs:
       run: dotnet build AnlaxBase.sln --configuration "Debug R22" /p:Platform="x64"
 
     - name: Generate version based on the date
+      id: get_tag  # Устанавливаем ID для шага
       run: echo "RELEASE_TAG=v$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
     - name: Upload AnlaxBase.dll as release asset
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ env.RELEASE_TAG }}  # Уникальный тег на основе даты и времени
+        tag_name: ${{ steps.get_tag.outputs.RELEASE_TAG }}  # Используем ID для получения тега
         name: Debug R22
         files: ./bin/x64/Debug\ R22/net48/AnlaxBase.dll
         token: ${{ secrets.ANLAXD }}
