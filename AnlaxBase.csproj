@@ -42,15 +42,17 @@
   </PropertyGroup>
 
   <Target Name="CopyAddFilesToBuildDirectory" AfterTargets="Build">
-    <Message Text="Копирование содержимого папки IncludeDll в $(TargetDir) с сохранением структуры папок" Importance="high" />
+    <Message Text="Копирование папки IncludeDll и ее содержимого в $(TargetDir)" Importance="high" />
 
-    <!-- Выбираем все файлы и папки внутри AddFiles -->
+    <!-- Выбираем все файлы и папки внутри IncludeDll -->
     <ItemGroup>
-      <AddFiles Include="$(MSBuildProjectDirectory)\IncludeDll\**\*.*" />
+      <IncludeDll Include="$(MSBuildProjectDirectory)\IncludeDll\**\*.*" />
     </ItemGroup>
 
-    <!-- Копируем файлы с сохранением структуры папок -->
-    <Copy SourceFiles="@(IncludeDll)" DestinationFiles="@(IncludeDll->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <!-- Копируем папку IncludeDll с сохранением структуры -->
+    <Copy SourceFiles="@(IncludeDll)"
+          DestinationFiles="@(IncludeDll->'$(TargetDir)IncludeDll\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
   </Target>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
