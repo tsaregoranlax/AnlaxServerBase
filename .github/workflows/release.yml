@@ -47,10 +47,10 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore NuGet dependencies with version
-      run: dotnet restore AnlaxTemplate.sln /p:Configuration="${{ matrix.config.name }}"
+      run: dotnet restore AnlaxBase.sln /p:Configuration="${{ matrix.config.name }}"
 
     - name: Build the solution
-      run: dotnet build AnlaxTemplate.sln --configuration "${{ matrix.config.name }}"
+      run: dotnet build AnlaxBase.sln --configuration "${{ matrix.config.name }}"
 
     - name: Archive build output
       run: |
