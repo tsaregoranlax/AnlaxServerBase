@@ -50,9 +50,8 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
-    <PackageReference Include="Octokit" Version="13.0.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Icons\ResourceIcon.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -69,5 +68,10 @@
   <ItemGroup>
     <None Include=".github\workflows\release.yml" />
     <None Include=".github\workflows\debug.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AnlaxPackage">
+      <HintPath>..\AnlaxPackage\bin\Release R22\net48\AnlaxPackage.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

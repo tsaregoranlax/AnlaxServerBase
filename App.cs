@@ -90,10 +90,10 @@ namespace AnlaxBase
                 string result = NameClass.Substring(index + 1);
                 if (result == "HotLoad")
                 {
-                    LaunchAnlaxAutoUpdate();
                     foreach (var panelName in revitRibbonPanelCustoms)
                     {
                         RemovePanelClear(TabName, panelName);
+                        HotReload(panelName);
                     }
                     revitRibbonPanelCustoms.Clear();
                     RemoveItem(TabName, "Настройка плагина", comboBoxName);
@@ -113,7 +113,7 @@ namespace AnlaxBase
                 LastDllPath = e.Item.GroupName;
                 if (!string.IsNullOrEmpty(LastNameClass) && !string.IsNullOrEmpty(LastDllPath))
                 {
-                    string empty2 = "CustomCtrl_%CustomCtrl_%Anlax%Настройка плагина%EmptyCommand";
+                    string empty2 = $"CustomCtrl_%CustomCtrl_%{TabName}%Настройка плагина%EmptyCommand";
                     RevitCommandId id_addin_button_cmd = RevitCommandId.LookupCommandId(empty2);
                     UIApplicationCurrent.PostCommand(id_addin_button_cmd);
                 }
@@ -207,56 +207,62 @@ namespace AnlaxBase
 
         public Result OnStartup(UIControlledApplication application)
         {
-            //application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            application.ControlledApplication.DocumentCreated += ControlledApplication_DocumentCreated;
             string assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            MessageBox.Show(assemblyLocation);
-            //comboBoxCountReload = 0;
-            //pluginDirectory = Path.GetDirectoryName(assemblyLocation);
-            //LoadDependentAssemblies();
-            //uiappStart = application;
-            //AuthSettings auth = AuthSettings.Initialize(true);
-            //auth.Uiapp = uiappStart;
-            //TabName = auth.TabName;
-            //SubscribeOnButtonCliks();
+            comboBoxCountReload = 0;
+            pluginDirectory = Path.GetDirectoryName(assemblyLocation);
+            LoadDependentAssemblies();
+            uiappStart = application;
+            AuthSettings auth = AuthSettings.Initialize(true);
+            auth.Uiapp = uiappStart;
+            TabName = auth.TabName;
+            SubscribeOnButtonCliks();
             try
             {
-                application.CreateRibbonTab("ывывввв");
+                application.CreateRibbonTab(TabName);
             }
             catch { }
-            ribbonPanelBase = application.CreateRibbonPanel("sd", "Настройка плагина");
-            //PushButtonData pushButtonData = new PushButtonData(nameof(OpenWebHelp), "База\nзнаний", assemblyLocation, typeof(OpenWebHelp).FullName)
-            //{
-            //    LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
-            //};
-            //ribbonPanelBase.AddItem(pushButtonData);
+            ribbonPanelBase = application.CreateRibbonPanel(TabName, "Настройка плагина");
+            PushButtonData pushButtonData = new PushButtonData(nameof(OpenWebHelp), "База\nзнаний", assemblyLocation, typeof(OpenWebHelp).FullName)
+            {
+                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+            };
+            ribbonPanelBase.AddItem(pushButtonData);
 
-            //PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистму", assemblyLocation, typeof(AuthStart).FullName)
-            //{
-            //    LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
-            //};
-            //ribbonPanelBase.AddItem(pushButtonDataAuth);
+            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистму", assemblyLocation, typeof(AuthStart).FullName)
+            {
+                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+            };
+            ribbonPanelBase.AddItem(pushButtonDataAuth);
 
-            //PushButtonData pushButtonDataHotReload = new PushButtonData(nameof(HotLoad), "Обновить\nплагин", assemblyLocation, typeof(HotLoad).FullName)
-            //{
-            //    LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
-            //};
-            //ribbonPanelBase.AddItem(pushButtonDataHotReload);
-            //PushButtonData pushButtonDataHotLoad = new PushButtonData(nameof(EmptyCommand), "Последняя\nкоманда", assemblyLocation, typeof(EmptyCommand).FullName)
-            //{
-            //    LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
-            //};
-            //ribbonPanelBase.AddItem(pushButtonDataHotLoad);
-            
-        //CreateChoosenBox();
-        //    List<string> list = FindDllsWithApplicationStart();
-        //    foreach (string item in list)
-        //    {
-        //        bool BimDownLoad = LoadPlugin(application, item, comboBoxChoose);
-        //    }
+            PushButtonData pushButtonDataHotReload = new PushButtonData(nameof(HotLoad), "Обновить\nплагин", assemblyLocation, typeof(HotLoad).FullName)
+            {
+                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+            };
+            ribbonPanelBase.AddItem(pushButtonDataHotReload);
+            PushButtonData pushButtonDataHotLoad = new PushButtonData(nameof(EmptyCommand), "Последняя\nкоманда", assemblyLocation, typeof(EmptyCommand).FullName)
+            {
+                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+            };
+            ribbonPanelBase.AddItem(pushButtonDataHotLoad);
+
+            CreateChoosenBox();
+            List<string> list = FindDllsWithApplicationStart();
+            foreach (string item in list)
+            {
+                bool BimDownLoad = LoadPlugin(application, item, comboBoxChoose);
+            }
             return Result.Succeeded;
 
         }
 
+        private void ControlledApplication_DocumentCreated(object sender, DocumentCreatedEventArgs e)
+        {
+            Document sa = e.Document;
+            Autodesk.Revit.ApplicationServices.Application apView = sa.Application;
+            UIApplicationCurrent = new UIApplication(apView);
+        }
 
         private void ControlledApplication_DocumentOpened(object sender, DocumentOpenedEventArgs e)
         {
@@ -330,6 +336,34 @@ namespace AnlaxBase
                 return true;
             }
             return false;
+        }
+
+        private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)
+        {
+            byte[] assemblyBytes = File.ReadAllBytes(revitRibbonPanelCustom.AssemlyPath);
+            bool isDebug = false;
+            if (TabName.Contains("Anlax dev"))
+            {
+                isDebug = true;
+            }
+            Assembly assembly = Assembly.Load(assemblyBytes);
+            // Ищем класс "ApplicationStart"
+            Type typeStart = assembly.GetTypes()
+.Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
+.FirstOrDefault();
+
+            if (typeStart != null)
+            {
+                object instance = Activator.CreateInstance(typeStart);
+                MethodInfo onStartupMethod = typeStart.GetMethod("DownloadPluginUpdate");
+                var allMethods = typeStart.GetMethods();
+                if (onStartupMethod != null)
+                {
+                    string message = (string)onStartupMethod.Invoke(instance, new object[] { revitRibbonPanelCustom, isDebug });
+                    return message;
+                }
+            }
+            return "Ошибка обновления";
         }
         private void LoadDependentAssemblies()
         {
