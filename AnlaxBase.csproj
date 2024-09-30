@@ -50,6 +50,7 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,11 +59,20 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ResourceIcon.resx</DependentUpon>
     </Compile>
+    <Compile Update="Icons\ResourceIcons.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ResourceIcons.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Icons\ResourceIcon.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourceIcon.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Icons\ResourceIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourceIcons.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

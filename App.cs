@@ -19,6 +19,7 @@ using Autodesk.Internal.Windows;
 using static Autodesk.Revit.DB.SpecTypeId;
 using ComboBox = Autodesk.Revit.UI.ComboBox;
 using AnlaxPackage;
+using AnlaxBase.Icons;
 
 namespace AnlaxBase
 {
@@ -84,6 +85,7 @@ namespace AnlaxBase
         private void OnItemExecuted(object sender, RibbonItemExecutedEventArgs e)
         {
             string NameClass = e.Item.Id;
+            var iccoos = ResourceIcons.anlax_logo_red;
             int index = NameClass.LastIndexOf('%');
             if (index != -1 && index + 1 < NameClass.Length)
             {
