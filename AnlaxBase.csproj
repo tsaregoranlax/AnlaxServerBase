@@ -10,7 +10,7 @@
   </PropertyGroup>
   <!-- Свойство чтобы при сборке не лезли лишине dll файлы из зависимостей -->
   <PropertyGroup>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.Contains('R20'))">
     <RevitVersion>2020</RevitVersion>
@@ -38,15 +38,15 @@
   </PropertyGroup>
 
   <Target Name="CopyAddFilesToBuildDirectory" AfterTargets="Build">
-    <Message Text="Копирование папки IncludeDll и ее содержимого в $(TargetDir)" Importance="high" />
+    <Message Text="Копирование папки AddFiles и ее содержимого в $(TargetDir)" Importance="high" />
 
     <!-- Выбираем все файлы и папки внутри IncludeDll -->
     <ItemGroup>
-      <IncludeDll Include="$(MSBuildProjectDirectory)\IncludeDll\**\*.*" />
+      <AddFiles Include="$(MSBuildProjectDirectory)\AddFiles\**\*.*" />
     </ItemGroup>
 
     <!-- Копируем папку IncludeDll с сохранением структуры -->
-    <Copy SourceFiles="@(IncludeDll)" DestinationFiles="@(IncludeDll->'$(TargetDir)IncludeDll\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(AddFiles)" DestinationFiles="@(AddFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
@@ -78,10 +78,5 @@
   <ItemGroup>
     <None Include=".github\workflows\release.yml" />
     <None Include=".github\workflows\debug.yml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="AnlaxPackage">
-      <HintPath>..\AnlaxPackage\bin\Release R22\net48\AnlaxPackage.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
