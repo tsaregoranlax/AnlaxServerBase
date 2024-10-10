@@ -20,6 +20,8 @@ using static Autodesk.Revit.DB.SpecTypeId;
 using ComboBox = Autodesk.Revit.UI.ComboBox;
 using AnlaxPackage;
 using AnlaxBase.Icons;
+using System.Drawing;
+using System.Windows.Media.Imaging;
 
 namespace AnlaxBase
 {
@@ -228,24 +230,24 @@ namespace AnlaxBase
             ribbonPanelBase = application.CreateRibbonPanel(TabName, "Настройка плагина");
             PushButtonData pushButtonData = new PushButtonData(nameof(OpenWebHelp), "База\nзнаний", assemblyLocation, typeof(OpenWebHelp).FullName)
             {
-                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
             };
             ribbonPanelBase.AddItem(pushButtonData);
 
             PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистму", assemblyLocation, typeof(AuthStart).FullName)
             {
-                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
             };
             ribbonPanelBase.AddItem(pushButtonDataAuth);
 
             PushButtonData pushButtonDataHotReload = new PushButtonData(nameof(HotLoad), "Обновить\nплагин", assemblyLocation, typeof(HotLoad).FullName)
             {
-                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
             };
             ribbonPanelBase.AddItem(pushButtonDataHotReload);
             PushButtonData pushButtonDataHotLoad = new PushButtonData(nameof(EmptyCommand), "Последняя\nкоманда", assemblyLocation, typeof(EmptyCommand).FullName)
             {
-                LargeImage = RevitRibbonPanelCustom.NewBitmapImage(IconRevitPanel.anlax_logo_red, 32)
+                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
             };
             ribbonPanelBase.AddItem(pushButtonDataHotLoad);
 
@@ -427,6 +429,76 @@ namespace AnlaxBase
 
             return result;
         }
+        /// <summary>
+        /// Метод сжимающий иконку под размеры ленты Revit
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="pixels"></param>
+        /// <param name="dpi"></param>
+        /// <returns></returns>
+        public static BitmapImage NewBitmapImage(Image img, int pixels = 32, int dpi = 96)
+        {
+            // Создаем новое изображение с заданным разрешением DPI
+            Bitmap newBitmap = new Bitmap(img.Width, img.Height);
+            newBitmap.SetResolution(dpi, dpi);
+
+            // Копируем содержимое изображения img в новое изображение с заданным разрешением
+            using (Graphics g = Graphics.FromImage(newBitmap))
+            {
+                g.DrawImage(img, 0, 0, img.Width, img.Height);
+            }
+
+            // Масштабируем изображение до указанных размеров пикселей
+            Bitmap scaledBitmap = new Bitmap(newBitmap, new System.Drawing.Size(pixels, pixels));
+            return ConvertBitmapToBitmapImage(scaledBitmap);
+        }
+        public static BitmapImage NewBitmapImage(Uri imageUri, int pixels = 32, int dpi = 96)
+        {
+            // Загружаем изображение из Uri
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.UriSource = imageUri;
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.EndInit();
+
+            // Преобразуем его в формат Bitmap
+            Bitmap bitmap;
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
+                encoder.Save(memoryStream);
+                memoryStream.Position = 0;
+                bitmap = new Bitmap(memoryStream);
+            }
+
+            // Создаем новое изображение с заданным разрешением DPI
+            Bitmap newBitmap = new Bitmap(bitmap.Width, bitmap.Height);
+            newBitmap.SetResolution(dpi, dpi);
+
+            // Копируем содержимое изображения в новое изображение с заданным разрешением
+            using (Graphics g = Graphics.FromImage(newBitmap))
+            {
+                g.DrawImage(bitmap, 0, 0, bitmap.Width, bitmap.Height);
+            }
+
+            // Масштабируем изображение до указанных размеров пикселей
+            Bitmap scaledBitmap = new Bitmap(newBitmap, new System.Drawing.Size(pixels, pixels));
+            return ConvertBitmapToBitmapImage(scaledBitmap);
+        }
+        public static BitmapImage ConvertBitmapToBitmapImage(Bitmap bitmap)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            memoryStream.Position = 0;
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = memoryStream;
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.EndInit();
+            return bitmapImage;
+        }
     }
+
 }
 
