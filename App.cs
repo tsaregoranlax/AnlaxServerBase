@@ -108,7 +108,11 @@ namespace AnlaxBase
                     {
                         bool BimDownLoad = LoadPlugin(uiappStart, item, comboBoxChoose);
                     }
-                    
+                    foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
+                    {
+                        revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
+                    }
+
                 }
             }
             else // если кнопка добавлена черз ad.windows
@@ -257,6 +261,10 @@ namespace AnlaxBase
             {
                 bool BimDownLoad = LoadPlugin(application, item, comboBoxChoose);
             }
+            foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
+            {
+                revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
+            }
             return Result.Succeeded;
 
         }
@@ -318,28 +326,38 @@ namespace AnlaxBase
             byte[] assemblyBytes = File.ReadAllBytes(pathAssembly);
             Assembly assembly = Assembly.Load(assemblyBytes);
             // Ищем класс "ApplicationStart"
-            Type typeStart = assembly.GetTypes()
+            List<Type> typesStart = assembly.GetTypes()
 .Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
-.FirstOrDefault();
-
-            if (typeStart != null)
+.ToList();
+            foreach (Type typeStart in typesStart)
             {
-                object instance = Activator.CreateInstance(typeStart);
-                MethodInfo onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
-                if (onStartupMethod != null)
+                if (typeStart != null)
                 {
-                    revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { _app, pathAssembly,TabName });
-                    revitRibbonPanelCustom.AssemlyPath = pathAssembly;
+                    object instance = Activator.CreateInstance(typeStart);
+                    MethodInfo onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
+                    if (onStartupMethod != null)
+                    {
+                        revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { _app, pathAssembly, TabName });
+                        revitRibbonPanelCustom.AssemlyPath = pathAssembly;
+                    }
+                }
+                if (revitRibbonPanelCustom != null)
+                {
+                    if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
+                    {
+                        var oldPanel = revitRibbonPanelCustoms.Where(it => it.NamePanel == revitRibbonPanelCustom.NamePanel).FirstOrDefault();
+                        List<PushButtonData> buttons = revitRibbonPanelCustom.Buttons;
+                        oldPanel.Buttons.AddRange(buttons);
+                    }
+                    else
+                    {
+                        revitRibbonPanelCustom.AddToComboBox(comboChoose);
+                        revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
+                    }
+
                 }
             }
-            if (revitRibbonPanelCustom != null)
-            {
-                revitRibbonPanelCustom.AddToComboBox(comboChoose);
-                revitRibbonPanelCustom.CreateRibbonPanel(_app);
-                revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
-                return true;
-            }
-            return false;
+            return true;
         }
 
         private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)
