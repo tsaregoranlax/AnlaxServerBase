@@ -58,7 +58,7 @@ namespace AnlaxBase
         {
             try
             {
-                Process.Start(pluginDirectory + "\\AutoUpdate\\AutoUpdatePlugin.exe");
+                Process.Start(pluginDirectory + "\\AutoUpdate\\AnlaxRevitUpdate.exe");
             }
             catch (Exception ex)
             {
