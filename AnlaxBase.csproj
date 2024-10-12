@@ -52,6 +52,10 @@
     <!-- Копируем папку IncludeDll с сохранением структуры -->
     <Copy SourceFiles="@(AddFiles)" DestinationFiles="@(AddFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
+
+  <ItemGroup>
+    <None Remove="Icons\anlax-logo-red.png" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
@@ -73,5 +77,8 @@
   <ItemGroup>
     <None Include=".github\workflows\release.yml" />
     <None Include=".github\workflows\debug.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\anlax-logo-red.png" />
   </ItemGroup>
 </Project>
