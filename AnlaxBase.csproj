@@ -12,6 +12,9 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+  <PropertyGroup>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.Contains('R20'))">
     <RevitVersion>2020</RevitVersion>
     <TargetFramework>net48</TargetFramework>

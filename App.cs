@@ -27,7 +27,9 @@ namespace AnlaxBase
     internal class App : IExternalApplication
     {
         private string pluginDirectory { get; set; }
-        private string pluginIncludeDllDirectory { get
+        private string pluginIncludeDllDirectory
+        {
+            get
             {
                 return pluginDirectory + "\\IncludeDll";
             }
@@ -126,9 +128,9 @@ namespace AnlaxBase
                 }
             }
         }
-    
 
-        
+
+
         public static void RemovePanelClear(string tabName, RevitRibbonPanelCustom revitRibbon)
         {
             AW.RibbonControl ribbon = AW.ComponentManager.Ribbon;
@@ -278,7 +280,7 @@ namespace AnlaxBase
         private void ControlledApplication_DocumentOpened(object sender, DocumentOpenedEventArgs e)
         {
             Document sa = e.Document;
-            Autodesk.Revit.ApplicationServices.Application apView =sa.Application;
+            Autodesk.Revit.ApplicationServices.Application apView = sa.Application;
             UIApplicationCurrent = new UIApplication(apView);
         }
 
@@ -386,34 +388,6 @@ namespace AnlaxBase
             }
             return "Ошибка обновления";
         }
-
-        private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)
-        {
-            byte[] assemblyBytes = File.ReadAllBytes(revitRibbonPanelCustom.AssemlyPath);
-            bool isDebug = false;
-            if (TabName.Contains("Anlax dev"))
-            {
-                isDebug = true;
-            }
-            Assembly assembly = Assembly.Load(assemblyBytes);
-            // Ищем класс "ApplicationStart"
-            Type typeStart = assembly.GetTypes()
-.Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
-.FirstOrDefault();
-
-            if (typeStart != null)
-            {
-                object instance = Activator.CreateInstance(typeStart);
-                MethodInfo onStartupMethod = typeStart.GetMethod("DownloadPluginUpdate");
-                var allMethods = typeStart.GetMethods();
-                if (onStartupMethod != null)
-                {
-                    string message = (string)onStartupMethod.Invoke(instance, new object[] { revitRibbonPanelCustom, isDebug });
-                    return message;
-                }
-            }
-            return "Ошибка обновления";
-        }
         private void LoadDependentAssemblies()
         {
             if (Directory.Exists(pluginIncludeDllDirectory))
@@ -450,7 +424,7 @@ namespace AnlaxBase
                     var assembly = Assembly.Load(assemblyBytes);
 
                     // Ищем класс "ApplicationStart"
-                    Type typeStart  = assembly.GetTypes()
+                    Type typeStart = assembly.GetTypes()
             .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
             .FirstOrDefault();
 
