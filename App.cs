@@ -18,7 +18,6 @@ using AW = Autodesk.Windows;
 using Autodesk.Internal.Windows;
 using ComboBox = Autodesk.Revit.UI.ComboBox;
 using AnlaxPackage;
-using AnlaxBase.Icons;
 using System.Drawing;
 using System.Windows.Media.Imaging;
 
@@ -88,7 +87,6 @@ namespace AnlaxBase
         private void OnItemExecuted(object sender, RibbonItemExecutedEventArgs e)
         {
             string NameClass = e.Item.Id;
-            var iccoos = ResourceIcons.anlax_logo_red;
             int index = NameClass.LastIndexOf('%');
             if (index != -1 && index + 1 < NameClass.Length)
             {
@@ -233,27 +231,19 @@ namespace AnlaxBase
             }
             catch { }
             ribbonPanelBase = application.CreateRibbonPanel(TabName, "Настройка плагина");
-            PushButtonData pushButtonData = new PushButtonData(nameof(OpenWebHelp), "База\nзнаний", assemblyLocation, typeof(OpenWebHelp).FullName)
-            {
-                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
-            };
+            PushButtonData pushButtonData = new PushButtonData(nameof(OpenWebHelp), "База\nзнаний", assemblyLocation, typeof(OpenWebHelp).FullName);
+            pushButtonData.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/anlax-logo-red.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonData);
 
-            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистему", assemblyLocation, typeof(AuthStart).FullName)
-            {
-                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
-            };
+            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистему", assemblyLocation, typeof(AuthStart).FullName);
+            pushButtonDataAuth.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/anlax-logo-red.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonDataAuth);
 
-            PushButtonData pushButtonDataHotReload = new PushButtonData(nameof(HotLoad), "Обновить\nплагин", assemblyLocation, typeof(HotLoad).FullName)
-            {
-                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
-            };
+            PushButtonData pushButtonDataHotReload = new PushButtonData(nameof(HotLoad), "Обновить\nплагин", assemblyLocation, typeof(HotLoad).FullName);
+            pushButtonDataHotReload.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/anlax-logo-red.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonDataHotReload);
-            PushButtonData pushButtonDataHotLoad = new PushButtonData(nameof(EmptyCommand), "Последняя\nкоманда", assemblyLocation, typeof(EmptyCommand).FullName)
-            {
-                LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
-            };
+            PushButtonData pushButtonDataHotLoad = new PushButtonData(nameof(EmptyCommand), "Последняя\nкоманда", assemblyLocation, typeof(EmptyCommand).FullName);
+            pushButtonDataHotLoad.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/anlax-logo-red.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonDataHotLoad);
 
             CreateChoosenBox();

@@ -12,6 +12,7 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+  <!-- Свойство для выгрузки в GitHubAction -->
   <PropertyGroup>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
@@ -53,6 +54,10 @@
     <!-- Копируем папку IncludeDll с сохранением структуры -->
     <Copy SourceFiles="@(AddFiles)" DestinationFiles="@(AddFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
+
+  <ItemGroup>
+    <None Remove="Icons\anlax-logo-red.png" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
@@ -64,24 +69,18 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ResourceIcon.resx</DependentUpon>
     </Compile>
-    <Compile Update="Icons\ResourceIcons.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ResourceIcons.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Icons\ResourceIcon.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourceIcon.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Icons\ResourceIcons.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ResourceIcons.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\workflows\release.yml" />
     <None Include=".github\workflows\debug.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\anlax-logo-red.png" />
   </ItemGroup>
 </Project>
