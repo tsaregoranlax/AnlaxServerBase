@@ -327,8 +327,8 @@ namespace AnlaxBase
             Assembly assembly = Assembly.Load(assemblyBytes);
             // Ищем класс "ApplicationStart"
             List<Type> typesStart = assembly.GetTypes()
-.Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
-.ToList();
+    .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
+    .ToList();
             foreach (Type typeStart in typesStart)
             {
                 if (typeStart != null)
@@ -371,7 +371,7 @@ namespace AnlaxBase
             Assembly assembly = Assembly.Load(assemblyBytes);
             // Ищем класс "ApplicationStart"
             Type typeStart = assembly.GetTypes()
-.Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
+.Where(t => t.GetInterfaces().Any(i => i == typeof(IPluginUpdater)))
 .FirstOrDefault();
 
             if (typeStart != null)
@@ -381,7 +381,7 @@ namespace AnlaxBase
                 var allMethods = typeStart.GetMethods();
                 if (onStartupMethod != null)
                 {
-                    string message = (string)onStartupMethod.Invoke(instance, new object[] { revitRibbonPanelCustom, isDebug });
+                    string message = (string)onStartupMethod.Invoke(instance, new object[] { revitRibbonPanelCustom.AssemlyPath, isDebug });
                     return message;
                 }
             }
@@ -423,9 +423,9 @@ namespace AnlaxBase
                     var assembly = Assembly.Load(assemblyBytes);
 
                     // Ищем класс "ApplicationStart"
-                    Type typeStart = assembly.GetTypes()
-    .Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
-    .FirstOrDefault();
+                    Type typeStart  = assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
+            .FirstOrDefault();
 
                     if (typeStart != null)
                     {
