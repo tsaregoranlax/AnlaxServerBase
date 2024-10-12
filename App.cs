@@ -16,7 +16,6 @@ using System.Diagnostics;
 using System.Configuration.Assemblies;
 using AW = Autodesk.Windows;
 using Autodesk.Internal.Windows;
-using static Autodesk.Revit.DB.SpecTypeId;
 using ComboBox = Autodesk.Revit.UI.ComboBox;
 using AnlaxPackage;
 using AnlaxBase.Icons;
