@@ -16,7 +16,6 @@ using System.Diagnostics;
 using System.Configuration.Assemblies;
 using AW = Autodesk.Windows;
 using Autodesk.Internal.Windows;
-using static Autodesk.Revit.DB.SpecTypeId;
 using ComboBox = Autodesk.Revit.UI.ComboBox;
 using AnlaxPackage;
 using AnlaxBase.Icons;
@@ -58,7 +57,7 @@ namespace AnlaxBase
         {
             try
             {
-                Process.Start(pluginDirectory + "\\AutoUpdate\\AutoUpdatePlugin.exe");
+                Process.Start(pluginDirectory + "\\AutoUpdate\\AnlaxRevitUpdate.exe");
             }
             catch (Exception ex)
             {
@@ -108,7 +107,11 @@ namespace AnlaxBase
                     {
                         bool BimDownLoad = LoadPlugin(uiappStart, item, comboBoxChoose);
                     }
-                    
+                    foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
+                    {
+                        revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
+                    }
+
                 }
             }
             else // если кнопка добавлена черз ad.windows
@@ -234,7 +237,7 @@ namespace AnlaxBase
             };
             ribbonPanelBase.AddItem(pushButtonData);
 
-            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистму", assemblyLocation, typeof(AuthStart).FullName)
+            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистему", assemblyLocation, typeof(AuthStart).FullName)
             {
                 LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
             };
@@ -256,6 +259,10 @@ namespace AnlaxBase
             foreach (string item in list)
             {
                 bool BimDownLoad = LoadPlugin(application, item, comboBoxChoose);
+            }
+            foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
+            {
+                revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
             }
             return Result.Succeeded;
 
@@ -318,28 +325,66 @@ namespace AnlaxBase
             byte[] assemblyBytes = File.ReadAllBytes(pathAssembly);
             Assembly assembly = Assembly.Load(assemblyBytes);
             // Ищем класс "ApplicationStart"
+            List<Type> typesStart = assembly.GetTypes()
+    .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
+    .ToList();
+            foreach (Type typeStart in typesStart)
+            {
+                if (typeStart != null)
+                {
+                    object instance = Activator.CreateInstance(typeStart);
+                    MethodInfo onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
+                    if (onStartupMethod != null)
+                    {
+                        revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { _app, pathAssembly, TabName });
+                        revitRibbonPanelCustom.AssemlyPath = pathAssembly;
+                    }
+                }
+                if (revitRibbonPanelCustom != null)
+                {
+                    if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
+                    {
+                        var oldPanel = revitRibbonPanelCustoms.Where(it => it.NamePanel == revitRibbonPanelCustom.NamePanel).FirstOrDefault();
+                        List<PushButtonData> buttons = revitRibbonPanelCustom.Buttons;
+                        oldPanel.Buttons.AddRange(buttons);
+                    }
+                    else
+                    {
+                        revitRibbonPanelCustom.AddToComboBox(comboChoose);
+                        revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
+                    }
+
+                }
+            }
+            return true;
+        }
+
+        private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)
+        {
+            byte[] assemblyBytes = File.ReadAllBytes(revitRibbonPanelCustom.AssemlyPath);
+            bool isDebug = false;
+            if (TabName.Contains("Anlax dev"))
+            {
+                isDebug = true;
+            }
+            Assembly assembly = Assembly.Load(assemblyBytes);
+            // Ищем класс "ApplicationStart"
             Type typeStart = assembly.GetTypes()
-.Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
+.Where(t => t.GetInterfaces().Any(i => i == typeof(IPluginUpdater)))
 .FirstOrDefault();
 
             if (typeStart != null)
             {
                 object instance = Activator.CreateInstance(typeStart);
-                MethodInfo onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
+                MethodInfo onStartupMethod = typeStart.GetMethod("DownloadPluginUpdate");
+                var allMethods = typeStart.GetMethods();
                 if (onStartupMethod != null)
                 {
-                    revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { _app, pathAssembly,TabName });
-                    revitRibbonPanelCustom.AssemlyPath = pathAssembly;
+                    string message = (string)onStartupMethod.Invoke(instance, new object[] { revitRibbonPanelCustom.AssemlyPath, isDebug });
+                    return message;
                 }
             }
-            if (revitRibbonPanelCustom != null)
-            {
-                revitRibbonPanelCustom.AddToComboBox(comboChoose);
-                revitRibbonPanelCustom.CreateRibbonPanel(_app);
-                revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
-                return true;
-            }
-            return false;
+            return "Ошибка обновления";
         }
 
         private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)
@@ -405,9 +450,9 @@ namespace AnlaxBase
                     var assembly = Assembly.Load(assemblyBytes);
 
                     // Ищем класс "ApplicationStart"
-                    Type typeStart = assembly.GetTypes()
-    .Where(t => t.GetInterfaces().Any(i => i == typeof(IApplicationStartAnlax)))
-    .FirstOrDefault();
+                    Type typeStart  = assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
+            .FirstOrDefault();
 
                     if (typeStart != null)
                     {
