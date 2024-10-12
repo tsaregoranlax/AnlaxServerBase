@@ -238,7 +238,7 @@ namespace AnlaxBase
             };
             ribbonPanelBase.AddItem(pushButtonData);
 
-            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистму", assemblyLocation, typeof(AuthStart).FullName)
+            PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистему", assemblyLocation, typeof(AuthStart).FullName)
             {
                 LargeImage = NewBitmapImage(ResourceIcons.anlax_logo_red, 32)
             };
