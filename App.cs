@@ -399,7 +399,7 @@ namespace AnlaxBase
             catch (Exception ex)
             {
                 // Логирование ошибок
-                Console.WriteLine($"Ошибка при обработке {pathAssembly}: {ex.Message}");
+                Console.WriteLine($"Ошибка при обработк {pathAssembly}: {ex.Message}");
                 return false;
             }
         }
