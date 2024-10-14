@@ -20,6 +20,7 @@ using ComboBox = Autodesk.Revit.UI.ComboBox;
 using AnlaxPackage;
 using System.Drawing;
 using System.Windows.Media.Imaging;
+using Mono.Cecil;
 
 namespace AnlaxBase
 {
@@ -363,26 +364,29 @@ namespace AnlaxBase
             {
                 try
                 {
-                    // Читаем DLL как байтовый массив
-                    var assemblyBytes = File.ReadAllBytes(dll);
-
-                    // Загружаем сборку из байтов
-                    Assembly assembly = Assembly.Load(assemblyBytes);
-
-                    // Ищем класс "ApplicationStart"
-                    Type typeStart = assembly.GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
-            .FirstOrDefault();
-
-                    if (typeStart != null)
+                    // Читаем сборку через Mono.Cecil
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(dll))
                     {
-                        // Ищем метод "GetRevitRibbonPanelCustom"
-                        var onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
-                        object instance = Activator.CreateInstance(typeStart);
-                        if (onStartupMethod != null)
+                        // Ищем все типы в сборке
+                        var typeStart = assemblyDefinition.MainModule.Types
+                            .FirstOrDefault(t => t.BaseType != null && t.BaseType.FullName == typeof(ApplicationStartAnlax).FullName);
+
+                        if (typeStart != null)
                         {
+                            // Если тип найден, загружаем сборку
+                            var assemblyBytes = File.ReadAllBytes(dll);
+                            Assembly assembly = Assembly.Load(assemblyBytes);
+
+                            // Получаем Type для найденного класса
+                            Type runtimeType = assembly.GetType(typeStart.FullName);
+
+                            // Ищем метод "GetRevitRibbonPanelCustom"
+                            var onStartupMethod = runtimeType.GetMethod("GetRevitRibbonPanelCustom");
+
                             if (onStartupMethod != null)
                             {
+                                object instance = Activator.CreateInstance(runtimeType);
+
                                 // Вызов метода "GetRevitRibbonPanelCustom"
                                 RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { uiappStart, dll, TabName, assembly });
                                 revitRibbonPanelCustom.AssemlyPath = dll;
