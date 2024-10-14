@@ -16,21 +16,20 @@ namespace AnlaxBase
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            if (!string.IsNullOrEmpty(App.LastDllPath) && !string.IsNullOrEmpty(App.LastNameClass))
+            if (App.LastAssembly!=null && !string.IsNullOrEmpty(App.LastNameClass))
             {
-                InvokeRevitCommand(App.LastNameClass, commandData, ref message, elements, App.LastDllPath);
+                InvokeRevitCommand(App.LastNameClass, commandData, ref message, elements, App.LastAssembly);
             }
             return Result.Succeeded;
         }
 
-        public static void InvokeRevitCommand(string strCommandName, ExternalCommandData commandData, ref string message, object elements, string fullPathDllName)
+        public static void InvokeRevitCommand(string strCommandName, ExternalCommandData commandData, ref string message, object elements, Assembly fullPathDllName)
         {
             //Грузим нашу библиотеку в массив байтов.
             //Таким образом ревит ее не заблокирует на диске.
             try
             {
-                byte[] assemblyBytes = File.ReadAllBytes(fullPathDllName);
-                Assembly objAssembly = Assembly.Load(assemblyBytes);
+                Assembly objAssembly = fullPathDllName;
 
                 //Проходимся по сборке.
                 foreach (Type objType in objAssembly.GetTypes())

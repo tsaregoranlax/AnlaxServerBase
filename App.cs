@@ -51,7 +51,7 @@ namespace AnlaxBase
         public RibbonPanel ribbonPanelBase { get; set; }
         public static UIApplication UIApplicationCurrent { get; set; }
 
-        public static string LastDllPath { get; set; }
+        public static Assembly LastAssembly { get; set; }
         public static string LastNameClass { get; set; }
 
         private void LaunchAnlaxAutoUpdate()
@@ -113,13 +113,19 @@ namespace AnlaxBase
             else // если кнопка добавлена черз ad.windows
             {
                 LastNameClass = e.Item.UID;
-                LastDllPath = e.Item.GroupName;
-                if (!string.IsNullOrEmpty(LastNameClass) && !string.IsNullOrEmpty(LastDllPath))
+                string pathDll = e.Item.GroupName;
+                RevitRibbonPanelCustom revitRibbonPanelCustom = revitRibbonPanelCustoms.Where(it => it.AssemlyPath == pathDll).FirstOrDefault();
+                if (revitRibbonPanelCustom != null)
                 {
-                    string empty2 = $"CustomCtrl_%CustomCtrl_%{TabName}%Настройка плагина%EmptyCommand";
-                    RevitCommandId id_addin_button_cmd = RevitCommandId.LookupCommandId(empty2);
-                    UIApplicationCurrent.PostCommand(id_addin_button_cmd);
+                    LastAssembly = revitRibbonPanelCustom.AssemblyLoad;
+                    if (!string.IsNullOrEmpty(LastNameClass) && LastAssembly != null)
+                    {
+                        string empty2 = $"CustomCtrl_%CustomCtrl_%{TabName}%Настройка плагина%EmptyCommand";
+                        RevitCommandId id_addin_button_cmd = RevitCommandId.LookupCommandId(empty2);
+                        UIApplicationCurrent.PostCommand(id_addin_button_cmd);
+                    }
                 }
+
             }
         }
 
@@ -301,108 +307,6 @@ namespace AnlaxBase
 
         }
 
-
-        private bool LoadPlugin(UIControlledApplication _app, string pathAssembly, ComboBox comboChoose)
-        {
-            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            RevitRibbonPanelCustom revitRibbonPanelCustom = null;
-            byte[] assemblyBytes = File.ReadAllBytes(pathAssembly);
-            Assembly assembly = Assembly.Load(assemblyBytes);
-            // Ищем класс "ApplicationStart"
-            List<Type> typesStart = assembly.GetTypes()
-    .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
-    .ToList();
-            foreach (Type typeStart in typesStart)
-            {
-                if (typeStart != null)
-                {
-                    object instance = Activator.CreateInstance(typeStart);
-                    MethodInfo onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
-                    if (onStartupMethod != null)
-                    {
-                        revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { _app, pathAssembly, TabName });
-                        revitRibbonPanelCustom.AssemlyPath = pathAssembly;
-                    }
-                }
-                if (revitRibbonPanelCustom != null)
-                {
-                    if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
-                    {
-                        var oldPanel = revitRibbonPanelCustoms.Where(it => it.NamePanel == revitRibbonPanelCustom.NamePanel).FirstOrDefault();
-                        List<PushButtonData> buttons = revitRibbonPanelCustom.Buttons;
-                        oldPanel.Buttons.AddRange(buttons);
-                    }
-                    else
-                    {
-                        revitRibbonPanelCustom.AddToComboBox(comboChoose);
-                        revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
-                    }
-
-                }
-            }
-            return true;
-        }
-        public bool FindAndLoadPlugin(UIControlledApplication _app, string pathAssembly, ComboBox comboChoose)
-        {
-            try
-            {
-                // Читаем DLL как байтовый массив
-                byte[] assemblyBytes = File.ReadAllBytes(pathAssembly);
-
-                // Загружаем сборку из байтов
-                Assembly assembly = Assembly.Load(assemblyBytes);
-
-                // Ищем классы, наследуемые от ApplicationStartAnlax
-                List<Type> typesStart = assembly.GetTypes()
-                    .Where(t => t.IsSubclassOf(typeof(ApplicationStartAnlax)))
-                    .ToList();
-
-                bool loadedAtLeastOnePlugin = false;
-
-                foreach (Type typeStart in typesStart)
-                {
-                    if (typeStart != null)
-                    {
-                        object instance = Activator.CreateInstance(typeStart);
-                        MethodInfo onStartupMethod = typeStart.GetMethod("GetRevitRibbonPanelCustom");
-
-                        if (onStartupMethod != null)
-                        {
-                            // Вызов метода "GetRevitRibbonPanelCustom"
-                            RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { _app, pathAssembly, TabName });
-                            revitRibbonPanelCustom.AssemlyPath = pathAssembly;
-
-                            if (revitRibbonPanelCustom != null)
-                            {
-                                if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
-                                {
-                                    var oldPanel = revitRibbonPanelCustoms.FirstOrDefault(it => it.NamePanel == revitRibbonPanelCustom.NamePanel);
-                                    if (oldPanel != null)
-                                    {
-                                        oldPanel.Buttons.AddRange(revitRibbonPanelCustom.Buttons);
-                                    }
-                                }
-                                else
-                                {
-                                    revitRibbonPanelCustom.AddToComboBox(comboChoose);
-                                    revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
-                                }
-
-                                loadedAtLeastOnePlugin = true;
-                            }
-                        }
-                    }
-                }
-
-                return loadedAtLeastOnePlugin;
-            }
-            catch (Exception ex)
-            {
-                // Логирование ошибок
-                Console.WriteLine($"Ошибка при обработк {pathAssembly}: {ex.Message}");
-                return false;
-            }
-        }
         private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)
         {
             byte[] assemblyBytes = File.ReadAllBytes(revitRibbonPanelCustom.AssemlyPath);
@@ -411,7 +315,7 @@ namespace AnlaxBase
             {
                 isDebug = true;
             }
-            Assembly assembly = Assembly.Load(assemblyBytes);
+            Assembly assembly = revitRibbonPanelCustom.AssemblyLoad;
             // Ищем класс "ApplicationStart"
             Type typeStart = assembly.GetTypes()
 .Where(t => t.GetInterfaces().Any(i => i == typeof(IPluginUpdater)))
@@ -463,7 +367,7 @@ namespace AnlaxBase
                     var assemblyBytes = File.ReadAllBytes(dll);
 
                     // Загружаем сборку из байтов
-                    var assembly = Assembly.Load(assemblyBytes);
+                    Assembly assembly = Assembly.Load(assemblyBytes);
 
                     // Ищем класс "ApplicationStart"
                     Type typeStart = assembly.GetTypes()
@@ -480,7 +384,7 @@ namespace AnlaxBase
                             if (onStartupMethod != null)
                             {
                                 // Вызов метода "GetRevitRibbonPanelCustom"
-                                RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { uiappStart, dll, TabName });
+                                RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { uiappStart, dll, TabName, assembly });
                                 revitRibbonPanelCustom.AssemlyPath = dll;
 
                                 if (revitRibbonPanelCustom != null)
