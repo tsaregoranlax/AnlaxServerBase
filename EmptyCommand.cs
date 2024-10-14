@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.Attributes;
+﻿using AnlaxPackage;
+using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System;
@@ -37,6 +38,18 @@ namespace AnlaxBase
                     //Выбираем класс.
                     if (objType.IsClass)
                     {
+                        if (objType.IsSubclassOf(typeof(ApplicationStartAnlax)))
+                        {
+                            // Проверка на наличие статического поля UIControlledApplicationBase.
+                            FieldInfo fieldInfo = objType.GetField("UIControlledApplicationBase",
+                                                                  BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+                            if (fieldInfo != null)
+                            {
+                                // Присвоение значения полю.
+                                fieldInfo.SetValue(null, App.uiappStart);  // Используем null, т.к. поле статическое.
+                            }
+                        }
                         if (objType.Name.ToLower() == strCommandName.ToLower())
                         {
                             object ibaseObject = Activator.CreateInstance(objType);
