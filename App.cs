@@ -37,6 +37,23 @@ namespace AnlaxBase
 
         private string TabName { get; set; }
 
+        public bool IsDebug
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(TabName))
+                {
+                    return false;
+                }
+                if (TabName.Contains("Anlax dev"))
+                {
+                    return true;
+                }
+                return false;
+
+            }
+        }
+
         private List<RevitRibbonPanelCustom> revitRibbonPanelCustoms = new List<RevitRibbonPanelCustom>();
 
         public UIControlledApplication uiappStart { get; set; }
@@ -94,15 +111,19 @@ namespace AnlaxBase
                 string result = NameClass.Substring(index + 1);
                 if (result == "HotLoad")
                 {
+                    RemoveItem(TabName, "Настройка плагина", comboBoxName);
+                    CreateChoosenBox();
+
+
                     foreach (var panelName in revitRibbonPanelCustoms)
                     {
                         RemovePanelClear(TabName, panelName);
                         HotReload(panelName);
                     }
                     revitRibbonPanelCustoms.Clear();
-                    RemoveItem(TabName, "Настройка плагина", comboBoxName);
+
                     comboBoxCountReload++;
-                    CreateChoosenBox();
+
                     List<string> list = FindDllsWithApplicationStart();
                     foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
                     {
@@ -306,6 +327,60 @@ namespace AnlaxBase
                 }
             }
 
+        }
+
+        private string HotReloadAll()
+        {
+            List<string> result = new List<string>();
+
+            // Рекурсивно ищем все файлы с расширением .dll
+            var dllFiles = Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories);
+            List<RevitRibbonPanelCustom> allNewRiibon = new List<RevitRibbonPanelCustom>();
+            foreach (var dll in dllFiles)
+            {
+                try
+                {
+                    // Читаем сборку через Mono.Cecil
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(dll))
+                    {
+                        // Ищем все типы в сборке
+                        foreach (var type in assemblyDefinition.MainModule.Types)
+                        {
+                            // Проверяем, реализует ли тип интерфейс IPluginUpdater
+                            if (type.Interfaces.Any(i => i.InterfaceType.FullName == typeof(IPluginUpdater).FullName))
+                            {
+                                RevitRibbonPanelCustom revitRibbonPanelCustom = revitRibbonPanelCustoms.Where(it => it.AssemlyPath == dll).FirstOrDefault();
+                                Assembly assemblyUpdate = null;
+                                if (revitRibbonPanelCustom != null) //Если вкладка уже существовала а если не было такой вкладки то пошли вы нахер, потом будем обновляться
+                                {
+                                    assemblyUpdate = revitRibbonPanelCustom.AssemblyLoad;
+                                    RemovePanelClear(TabName, revitRibbonPanelCustom);
+                                    Type typeStart = assemblyUpdate.GetTypes()
+.Where(t => t.GetInterfaces().Any(i => i == typeof(IPluginUpdater)))
+.FirstOrDefault();
+                                    if (typeStart != null)
+                                    {
+                                        object instance = Activator.CreateInstance(typeStart);
+                                        MethodInfo onStartupMethod = typeStart.GetMethod("DownloadPluginUpdate");
+                                        var allMethods = typeStart.GetMethods();
+                                        if (onStartupMethod != null)
+                                        {
+                                            string message = (string)onStartupMethod.Invoke(instance, new object[] { revitRibbonPanelCustom.AssemlyPath, IsDebug });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Логируем ошибки
+                    Console.WriteLine($"Ошибка при обработке {dll}: {ex.Message}");
+                }
+            }
+
+            return string.Join(Environment.NewLine, result);
         }
 
         private string HotReload(RevitRibbonPanelCustom revitRibbonPanelCustom)

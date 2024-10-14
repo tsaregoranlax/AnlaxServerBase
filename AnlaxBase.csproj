@@ -10,7 +10,7 @@
   </PropertyGroup>
   <!-- Свойство чтобы при сборке не лезли лишине dll файлы из зависимостей -->
   <PropertyGroup>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <!-- Свойство для выгрузки в GitHubAction -->
   <PropertyGroup>
