@@ -80,7 +80,7 @@ namespace AnlaxBase
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ошибка при запуске AutoUpdatePlugin.exe: {ex.Message}");
+                System.Windows.MessageBox.Show($"Ошибка при запуске обновления плагина Anlax AutoUpdatePlugin.exe: {ex.Message}");
             }
         }
         public Result OnShutdown(UIControlledApplication application)
@@ -112,6 +112,7 @@ namespace AnlaxBase
                 if (result == "HotLoad")
                 {
                     RemoveItem(TabName, "Настройка плагина", comboBoxName);
+                    comboBoxCountReload++;
                     CreateChoosenBox();
 
 
@@ -122,7 +123,7 @@ namespace AnlaxBase
                     }
                     revitRibbonPanelCustoms.Clear();
 
-                    comboBoxCountReload++;
+                    
 
                     List<string> list = FindDllsWithApplicationStart();
                     foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
@@ -452,36 +453,61 @@ namespace AnlaxBase
                             var assemblyBytes = File.ReadAllBytes(dll);
                             Assembly assembly = Assembly.Load(assemblyBytes);
 
-                            // Получаем Type для найденного класса
-                            Type runtimeType = assembly.GetType(typeStart.FullName);
-
-                            // Ищем метод "GetRevitRibbonPanelCustom"
-                            var onStartupMethod = runtimeType.GetMethod("GetRevitRibbonPanelCustom");
-
-                            if (onStartupMethod != null)
+                            // Попробуем обработать исключение
+                            Type[] types;
+                            try
                             {
-                                object instance = Activator.CreateInstance(runtimeType);
-
-                                // Вызов метода "GetRevitRibbonPanelCustom"
-                                RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { uiappStart, dll, TabName, assembly });
-                                revitRibbonPanelCustom.AssemlyPath = dll;
-
-                                if (revitRibbonPanelCustom != null)
+                                types = assembly.GetTypes();
+                            }
+                            catch (ReflectionTypeLoadException ex)
+                            {
+                                // Логируем исключения загрузки типов
+                                foreach (var loaderException in ex.LoaderExceptions)
                                 {
-                                    if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
+                                    Console.WriteLine($"Ошибка загрузки типа: {loaderException.Message}");
+                                }
+
+                                // Получаем уже загруженные типы
+                                types = ex.Types.Where(t => t != null).ToArray();
+                            }
+
+                            // Ищем тип вручную среди уже загруженных типов
+                            var runtimeType = types.FirstOrDefault(t => t.FullName == typeStart.FullName);
+
+                            if (runtimeType != null)
+                            {
+                                // Ищем метод "GetRevitRibbonPanelCustom"
+                                var onStartupMethod = runtimeType.GetMethod("GetRevitRibbonPanelCustom");
+
+                                if (onStartupMethod != null)
+                                {
+                                    object instance = Activator.CreateInstance(runtimeType);
+
+                                    // Вызов метода "GetRevitRibbonPanelCustom"
+                                    RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { uiappStart, dll, TabName, assembly });
+                                    revitRibbonPanelCustom.AssemlyPath = dll;
+
+                                    if (revitRibbonPanelCustom != null)
                                     {
-                                        var oldPanel = revitRibbonPanelCustoms.FirstOrDefault(it => it.NamePanel == revitRibbonPanelCustom.NamePanel);
-                                        if (oldPanel != null)
+                                        if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
                                         {
-                                            oldPanel.Buttons.AddRange(revitRibbonPanelCustom.Buttons);
+                                            var oldPanel = revitRibbonPanelCustoms.FirstOrDefault(it => it.NamePanel == revitRibbonPanelCustom.NamePanel);
+                                            if (oldPanel != null)
+                                            {
+                                                oldPanel.Buttons.AddRange(revitRibbonPanelCustom.Buttons);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            revitRibbonPanelCustom.AddToComboBox(comboBoxChoose);
+                                            revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
                                         }
                                     }
-                                    else
-                                    {
-                                        revitRibbonPanelCustom.AddToComboBox(comboBoxChoose);
-                                        revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
-                                    }
                                 }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Тип {typeStart.FullName} не найден в загруженной сборке.");
                             }
                         }
                     }
@@ -495,6 +521,7 @@ namespace AnlaxBase
 
             return result;
         }
+
         /// <summary>
         /// Метод сжимающий иконку под размеры ленты Revit
         /// </summary>
