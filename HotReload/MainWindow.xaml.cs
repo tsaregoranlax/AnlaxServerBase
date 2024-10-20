@@ -4,7 +4,6 @@ using Mono.Cecil;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
