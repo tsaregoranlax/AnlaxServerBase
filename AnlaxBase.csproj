@@ -60,6 +60,10 @@
   </Target>
   <ItemGroup>
     <None Remove="Icons\anlax-logo-red.png" />
+    <None Remove="Icons\Day - Knowledge base.png" />
+    <None Remove="Icons\Day - Last command.png" />
+    <None Remove="Icons\Day - Log in.png" />
+    <None Remove="Icons\Day - Update.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
@@ -72,5 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\anlax-logo-red.png" />
+    <Resource Include="Icons\Day - Knowledge base.png" />
+    <Resource Include="Icons\Day - Last command.png" />
+    <Resource Include="Icons\Day - Log in.png" />
+    <Resource Include="Icons\Day - Update.png" />
   </ItemGroup>
 </Project>
