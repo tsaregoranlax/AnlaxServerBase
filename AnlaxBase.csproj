@@ -3,15 +3,13 @@
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
     <ImplicitUsings>true</ImplicitUsings>
     <PublishAddinFiles>true</PublishAddinFiles>
     <Configurations>Debug R20;Debug R21;Debug R22;Debug R23;Debug R24;Debug R25</Configurations>
     <Configurations>$(Configurations);Release R20;Release R21;Release R22;Release R23;Release R24;Release R25</Configurations>
   </PropertyGroup>
-  <!-- Свойство для выгрузки в GitHubAction -->
-  <PropertyGroup>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-  </PropertyGroup>
+  
   <PropertyGroup Condition="$(Configuration.Contains('R20'))">
     <RevitVersion>2020</RevitVersion>
     <TargetFramework>net48</TargetFramework>
@@ -40,6 +38,7 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+  
   <Target Name="CleanOutput" AfterTargets="Build">
     <Message Text="Удаление лишних файлов из выходной директории" Importance="high" />
     <!-- Удаляем все файлы кроме вашего сборочного файла (dll, pdb) и AnlaxPackage -->
@@ -58,6 +57,50 @@
     <!-- Копируем папку IncludeDll с сохранением структуры -->
     <Copy SourceFiles="@(AddFiles)" DestinationFiles="@(AddFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
+
+  <Target Name="ZipBuildOutputDebug" AfterTargets="CopyAddFilesToBuildDirectory" Condition="$(Configuration.Contains('Debug'))">
+    <PropertyGroup>
+      <ZipFilePath>$(TargetDir)..\$(Configuration.Replace(' ', '')).zip</ZipFilePath>
+      <DebugFolderPath>$(TargetDir)..\..\Debug</DebugFolderPath>
+    </PropertyGroup>
+
+    <Message Text="Проверка существования папки Debug по пути $(DebugFolderPath)" Importance="high" />
+    <MakeDir Directories="$(DebugFolderPath)" Condition="!Exists('$(DebugFolderPath)')" />
+
+    <Message Text="Создание архива $(ZipFilePath) из файлов в $(TargetDir)" Importance="high" />
+    <Exec Command="powershell -command &quot;Compress-Archive -Path '$(TargetDir)*' -DestinationPath '$(ZipFilePath)' -Force&quot;" />
+
+    <!-- Ждем, пока файл не освободится, до 10 секунд -->
+    <Exec Command="powershell -command &quot;$timeout = 10; while (!(Test-Path '$(ZipFilePath)') -and $timeout -gt 0) { Start-Sleep -Seconds 1; $timeout -= 1 }; if ($timeout -eq 0) { throw 'File is still in use' }&quot;" />
+
+    <Message Text="Перемещение архива $(ZipFilePath) в папку $(DebugFolderPath)" Importance="high" />
+    <Move SourceFiles="$(ZipFilePath)" DestinationFolder="$(DebugFolderPath)" />
+  </Target>
+
+  <Target Name="ZipBuildOutputRelease" AfterTargets="CopyAddFilesToBuildDirectory" Condition="$(Configuration.Contains('Release'))">
+    <PropertyGroup>
+      <!-- Путь к создаваемому архиву с именем конфигурации -->
+      <ZipFilePath>$(TargetDir)..\$(Configuration.Replace(' ', '')).zip</ZipFilePath>
+      <!-- Путь к папке Release для переноса архива -->
+      <ReleaseFolderPath>$(TargetDir)..\..\Release</ReleaseFolderPath>
+    </PropertyGroup>
+
+    <!-- Проверяем существование папки Release и создаем её, если она не существует -->
+    <Message Text="Проверка существования папки Release по пути $(ReleaseFolderPath)" Importance="high" />
+    <MakeDir Directories="$(ReleaseFolderPath)" Condition="!Exists('$(ReleaseFolderPath)')" />
+
+    <!-- Создаем архив с помощью PowerShell -->
+    <Message Text="Создание архива $(ZipFilePath) из файлов в $(TargetDir)" Importance="high" />
+    <Exec Command="powershell -command &quot;Compress-Archive -Path '$(TargetDir)*' -DestinationPath '$(ZipFilePath)' -Force&quot;" />
+
+    <!-- Перемещаем архив в папку Release -->
+    <Message Text="Перемещение архива $(ZipFilePath) в папку $(ReleaseFolderPath)" Importance="high" />
+    <Move SourceFiles="$(ZipFilePath)" DestinationFolder="$(ReleaseFolderPath)" />
+  </Target>  
+  
+  
+
+  
   <ItemGroup>
     <None Remove="Icons\anlax-logo-red.png" />
     <None Remove="Icons\Day - Knowledge base.png" />
@@ -68,11 +111,6 @@
   <ItemGroup>
     <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".github\workflows\release.yml" />
-    <None Include=".github\workflows\debug.yml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\anlax-logo-red.png" />

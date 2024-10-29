@@ -1,4 +1,5 @@
-﻿using AnlaxBase.HotReload;
+﻿using AnlaxBase;
+using AnlaxBase.HotReload;
 using AnlaxPackage;
 using Mono.Cecil;
 using System.Diagnostics;
@@ -42,7 +43,7 @@ namespace AnlaxRevitUpdate
             PluginAutoUpdateDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             GoodDownload = true;
             InitializeComponent();
-
+            CheckBoxUpdate.IsChecked = App.AutoUpdateStart;
             // Настраиваем UI
             TextBlockMessage.Text = "Не закрывайте окно. Идет проверка обновления плагина Anlax\n";
             ProgressBarDownload.Maximum = listReload.Count + 1;
@@ -103,7 +104,7 @@ namespace AnlaxRevitUpdate
         private string ReloadMainPlug()
         {
             string pathToBaseDll = System.IO.Path.Combine(PluginAutoUpdateDirectory, "AutoUpdate\\AnlaxRevitUpdate.dll");
-            string token = "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";
+            string token = "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";
             string userName = "anlaxtech";
             string repposotoryName = "AnlaxRevitUpdate";
             GitHubBaseDownload gitHubBaseDownload = new GitHubBaseDownload(pathToBaseDll, token, userName, repposotoryName, "AutoUpdate");
@@ -143,6 +144,7 @@ namespace AnlaxRevitUpdate
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
+            App.AutoUpdateStart = (bool)CheckBoxUpdate.IsChecked;
             Close();
         }
 
@@ -159,6 +161,7 @@ namespace AnlaxRevitUpdate
 
         private void Button_Click_Cancel(object sender, RoutedEventArgs e)
         {
+            App.AutoUpdateStart = (bool)CheckBoxUpdate.IsChecked;
             Close();
         }
 

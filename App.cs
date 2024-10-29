@@ -28,6 +28,7 @@ namespace AnlaxBase
 {
     internal class App : IExternalApplication
     {
+        public static bool AutoUpdateStart {  get; set; }
         private string pluginDirectory { get; set; }
         private string pluginIncludeDllDirectory
         {
@@ -289,10 +290,12 @@ namespace AnlaxBase
 
             CreateChoosenBox();
             List<string> list = FindDllsWithApplicationStart();
-            MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
-            mainWindow.Show(); // Отображаем окно
-            mainWindow.StartUpdate(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
-
+            if (AutoUpdateStart)
+            {
+                MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
+                mainWindow.Show(); // Отображаем окно
+                mainWindow.StartUpdate(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
+            }
             foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
             {
                 revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
