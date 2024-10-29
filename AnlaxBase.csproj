@@ -3,7 +3,7 @@
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyFileVersion>1.0.7</AssemblyFileVersion>
+    <AssemblyFileVersion>1.0.8</AssemblyFileVersion>
     <ImplicitUsings>true</ImplicitUsings>
     <PublishAddinFiles>true</PublishAddinFiles>
     <Configurations>Debug R20;Debug R21;Debug R22;Debug R23;Debug R24;Debug R25</Configurations>
