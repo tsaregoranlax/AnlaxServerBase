@@ -23,11 +23,15 @@ using System.Windows.Media.Imaging;
 using Mono.Cecil;
 using AnlaxRevitUpdate;
 using System.Windows.Threading;
+using System.Windows.Interop;
+using System.Runtime.InteropServices;
 
 namespace AnlaxBase
 {
     internal class App : IExternalApplication
     {
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
         public static bool AutoUpdateStart {  get; set; }
         private string pluginDirectory { get; set; }
         private string pluginIncludeDllDirectory
@@ -90,9 +94,6 @@ namespace AnlaxBase
         {
             try
             {
-                MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
-                mainWindow.Show(); // Отображаем окно
-                mainWindow.StartUpdate(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
                 LaunchAnlaxAutoUpdate();
             }
             catch (Exception ex)
@@ -290,12 +291,15 @@ namespace AnlaxBase
 
             CreateChoosenBox();
             List<string> list = FindDllsWithApplicationStart();
-            if (AutoUpdateStart)
-            {
+
                 MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
+                mainWindow.ShowActivated = false;
+                mainWindow.Topmost = false;
                 mainWindow.Show(); // Отображаем окно
-                mainWindow.StartUpdate(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
-            }
+            var revitProcess = Process.GetCurrentProcess();
+
+            mainWindow.StartUpdateBehind(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
+            
             foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
             {
                 revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
@@ -461,14 +465,6 @@ namespace AnlaxBase
 
             return result;
         }
-
-        /// <summary>
-        /// Метод сжимающий иконку под размеры ленты Revit
-        /// </summary>
-        /// <param name="img"></param>
-        /// <param name="pixels"></param>
-        /// <param name="dpi"></param>
-        /// <returns></returns>
 
     }
 

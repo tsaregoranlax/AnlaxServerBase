@@ -35,6 +35,5 @@
             Width="419"
             Height="20"><Run Language="ru-ru" Text="АВТООБНОВЛЕНИЕ ПЛАГИНА "/><Run Text="ANLAX"/></TextBlock>
         <Button x:Name="ButtonRestart" Style="{StaticResource ButtonBase}" Content="ПЕРЕЗАПУСТИТЬ" HorizontalAlignment="Center" Margin="0,375,0,0" VerticalAlignment="Top" Height="35" Width="150" Click="ButtonRestart_Click" />
-        <CheckBox x:Name="CheckBoxUpdate" Content="Автообновление при старте" Style="{StaticResource CheckRound}" HorizontalAlignment="Left" Margin="10,297,0,0" VerticalAlignment="Top" Width="272"/>
     </Grid>
 </Window>

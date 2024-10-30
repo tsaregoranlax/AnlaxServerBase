@@ -43,7 +43,6 @@ namespace AnlaxRevitUpdate
             PluginAutoUpdateDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             GoodDownload = true;
             InitializeComponent();
-            CheckBoxUpdate.IsChecked = App.AutoUpdateStart;
             // Настраиваем UI
             TextBlockMessage.Text = "Не закрывайте окно. Идет проверка обновления плагина Anlax\n";
             ProgressBarDownload.Maximum = listReload.Count + 1;
@@ -92,22 +91,80 @@ namespace AnlaxRevitUpdate
                 // Закрываем окно через 2 секунды, если обновления прошли успешно
                 if (GoodDownload)
                 {
-                    Dispatcher.Invoke(() =>
+                    Dispatcher.Invoke(async () =>
                     {
-                        Timer timer = new Timer(CloseWindowCallback, null, 2000, Timeout.Infinite);
+                        await Task.Delay(2000);
+                        Close();
                     });
                 }
                 // Поднимаем событие завершения
                 UpdateCompleted?.Invoke(this, EventArgs.Empty);
             });
             }
+
+        public void StartUpdateBehind(List<RevitRibbonPanelCustom> listReload)
+        {
+            int progress = 0;
+            Dispatcher.Invoke(() => this.Hide());
+            Task updateTask = Task.Run(() =>
+            {
+                foreach (RevitRibbonPanelCustom revitPanel in listReload)
+                {
+                    string message = HotReload(revitPanel);
+                    string assemblyPath = revitPanel.AssemlyPath;
+                    string plugName = GetPluginName(assemblyPath);
+                    progress++;
+                    // Обновляем UI через Dispatcher.InvokeAsync
+                    Dispatcher.Invoke(() =>
+                    {
+                        ProgressBarDownload.Value = progress;
+                        TextBlockMessage.Text += $"Загрузка {plugName}. {message}\n";
+                        TextBlockDownload.Text = $"{progress}/{listReload.Count + 1} загружено";
+                    });
+
+
+
+                    if (message != "Загрузка прошла успешно" && message != "Загружена актуальная версия плагина")
+                    {
+                        GoodDownload = false;
+                    }
+                }
+                string messageMain = ReloadMainPlug();
+
+                // После завершения загрузки
+                Dispatcher.Invoke(() =>
+                {
+                    ProgressBarDownload.Value = ProgressBarDownload.Maximum;
+                    TextBlockDownload.Text = "Обновление завершено!";
+                    TextBlockMessage.Text += $"Загрузка AnlaxBaseUpdater. {messageMain}\n";
+                    TextBlockMessage.Text += "Все обновления завершены!\n";
+                });
+
+
+                // Закрываем окно через 2 секунды, если обновления прошли успешно
+                // Проверяем результат и управляем отображением окна через диспетчер
+                Dispatcher.Invoke(async () =>
+                {
+                    if (GoodDownload)
+                    {
+                        await Task.Delay(2000);
+                        Close();
+                    }
+                    else
+                    {
+                        this.Show(); // Показ окна, если обновление не удалось
+                    }
+                });
+                // Поднимаем событие завершения
+                UpdateCompleted?.Invoke(this, EventArgs.Empty);
+            });
+        }
         private string ReloadMainPlug()
         {
             string pathToBaseDll = System.IO.Path.Combine(PluginAutoUpdateDirectory, "AutoUpdate\\AnlaxRevitUpdate.dll");
-            string token = "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";
             string userName = "anlaxtech";
             string repposotoryName = "AnlaxRevitUpdate";
-            GitHubBaseDownload gitHubBaseDownload = new GitHubBaseDownload(pathToBaseDll, token, userName, repposotoryName, "AutoUpdate");
+            GitHubBaseDownload gitHubBaseDownload = new GitHubBaseDownload(pathToBaseDll, userName, repposotoryName, "AutoUpdate");
             return gitHubBaseDownload.HotReloadPlugin(true);
         }
 
@@ -132,19 +189,8 @@ namespace AnlaxRevitUpdate
             }
             return "Ошибка обновления";
         }
-        private void CloseWindowCallback(object state)
-        {
-            // Этот метод будет вызван после истечения 5 секунд
-            Dispatcher.Invoke(() =>
-            {
-                // Закрыть окно
-                Close();
-            });
-        }
-
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
-            App.AutoUpdateStart = (bool)CheckBoxUpdate.IsChecked;
             Close();
         }
 
@@ -161,7 +207,6 @@ namespace AnlaxRevitUpdate
 
         private void Button_Click_Cancel(object sender, RoutedEventArgs e)
         {
-            App.AutoUpdateStart = (bool)CheckBoxUpdate.IsChecked;
             Close();
         }
 
