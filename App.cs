@@ -30,8 +30,6 @@ namespace AnlaxBase
 {
     internal class App : IExternalApplication
     {
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
         public static bool AutoUpdateStart {  get; set; }
         private string pluginDirectory { get; set; }
         private string pluginIncludeDllDirectory
