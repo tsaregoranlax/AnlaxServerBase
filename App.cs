@@ -25,12 +25,13 @@ using AnlaxRevitUpdate;
 using System.Windows.Threading;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
+using AnlaxBimManager;
 
 namespace AnlaxBase
 {
     internal class App : IExternalApplication
     {
-        public static bool AutoUpdateStart {  get; set; }
+        public static bool AutoUpdateStart { get; set; }
         private string pluginDirectory { get; set; }
         private string pluginIncludeDllDirectory
         {
@@ -123,23 +124,23 @@ namespace AnlaxBase
                     {
                         RemovePanelClear(TabName, panelName);
                     }
-            MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
-            mainWindow.Show(); // Отображаем окно
+                    MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
+                    mainWindow.Show(); // Отображаем окно
 
-            // Создаем DispatcherFrame для ожидания завершения обновления
-            var frame = new DispatcherFrame();
+                    // Создаем DispatcherFrame для ожидания завершения обновления
+                    var frame = new DispatcherFrame();
 
-            // Подписываемся на событие завершения обновления
-            mainWindow.UpdateCompleted += (s, args) =>
-            {
-                // Завершаем DispatcherFrame, когда обновление завершено
-                frame.Continue = false;
-            };
+                    // Подписываемся на событие завершения обновления
+                    mainWindow.UpdateCompleted += (s, args) =>
+                    {
+                        // Завершаем DispatcherFrame, когда обновление завершено
+                        frame.Continue = false;
+                    };
 
-            mainWindow.StartUpdate(revitRibbonPanelCustoms); // Запускаем обновления
+                    mainWindow.StartUpdate(revitRibbonPanelCustoms); // Запускаем обновления
 
-            // Приостанавливаем выполнение до завершения обновлений
-            Dispatcher.PushFrame(frame);
+                    // Приостанавливаем выполнение до завершения обновлений
+                    Dispatcher.PushFrame(frame);
                     revitRibbonPanelCustoms.Clear();
                     List<string> list = FindDllsWithApplicationStart();
                     foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
@@ -290,14 +291,14 @@ namespace AnlaxBase
             CreateChoosenBox();
             List<string> list = FindDllsWithApplicationStart();
 
-                MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
-                mainWindow.ShowActivated = false;
-                mainWindow.Topmost = false;
-                mainWindow.Show(); // Отображаем окно
+            MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
+            mainWindow.ShowActivated = false;
+            mainWindow.Topmost = false;
+            mainWindow.Show(); // Отображаем окно
             var revitProcess = Process.GetCurrentProcess();
 
             mainWindow.StartUpdateBehind(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
-            
+
             foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
             {
                 revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
@@ -377,7 +378,7 @@ namespace AnlaxBase
 
             // Рекурсивно ищем все файлы с расширением .dll
             var dllFiles = Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories);
-
+            PackageLogManager.LogInfo("Найдено " + dllFiles.Length + " сборок");
             foreach (var dll in dllFiles)
             {
                 try
@@ -391,6 +392,7 @@ namespace AnlaxBase
 
                         if (typeStart != null)
                         {
+                            PackageLogManager.LogInfo("ApplicationStartAnlax найден в " + dllFiles.Length + " сборок");
                             // Если тип найден, загружаем сборку
                             var assemblyBytes = File.ReadAllBytes(dll);
                             Assembly assembly = Assembly.Load(assemblyBytes);
@@ -406,7 +408,7 @@ namespace AnlaxBase
                                 // Логируем исключения загрузки типов
                                 foreach (var loaderException in ex.LoaderExceptions)
                                 {
-                                    Console.WriteLine($"Ошибка загрузки типа: {loaderException.Message}");
+                                    PackageLogManager.LogInfo("Ошибка в считывании " + loaderException.Message);
                                 }
 
                                 // Получаем уже загруженные типы
@@ -418,38 +420,72 @@ namespace AnlaxBase
 
                             if (runtimeType != null)
                             {
-                                // Ищем метод "GetRevitRibbonPanelCustom"
-                                var onStartupMethod = runtimeType.GetMethod("GetRevitRibbonPanelCustom");
-
-                                if (onStartupMethod != null)
+                                // Ищем конструктор, соответствующий сигнатуре
+                                var constructor = runtimeType.GetConstructor(new Type[]
                                 {
-                                    object instance = Activator.CreateInstance(runtimeType);
+        typeof(UIControlledApplication),
+        typeof(string),
+        typeof(string),
+        typeof(Assembly)
+                                });
 
-                                    // Вызов метода "GetRevitRibbonPanelCustom"
-                                    RevitRibbonPanelCustom revitRibbonPanelCustom = (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, new object[] { uiappStart, dll, TabName, assembly });
-                                    revitRibbonPanelCustom.AssemlyPath = dll;
-
-                                    if (revitRibbonPanelCustom != null)
+                                if (constructor != null)
+                                {
+                                    // Создаем экземпляр класса
+                                    object instance = constructor.Invoke(new object[]
                                     {
-                                        if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
+            uiappStart,     // UIControlledApplication параметр
+            dll,            // PathAssembly параметр
+            TabName,        // TabName параметр
+            assembly        // Assembly параметр
+                                    });
+
+                                    if (instance != null)
+                                    {
+                                        // Ищем метод "GetRevitRibbonPanelCustom"
+                                        var onStartupMethod = runtimeType.GetMethod("GetRevitRibbonPanelCustom");
+
+                                        if (onStartupMethod != null)
                                         {
-                                            var oldPanel = revitRibbonPanelCustoms.FirstOrDefault(it => it.NamePanel == revitRibbonPanelCustom.NamePanel);
-                                            if (oldPanel != null)
+                                            // Вызов метода "GetRevitRibbonPanelCustom"
+                                            RevitRibbonPanelCustom revitRibbonPanelCustom =
+                                                (RevitRibbonPanelCustom)onStartupMethod.Invoke(instance, null);
+
+                                            if (revitRibbonPanelCustom != null)
                                             {
-                                                oldPanel.Buttons.AddRange(revitRibbonPanelCustom.Buttons);
+                                                revitRibbonPanelCustom.AssemlyPath = dll;
+
+                                                // Дополнительная обработка, как и в вашем коде
+                                                if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
+                                                {
+                                                    var oldPanel = revitRibbonPanelCustoms
+                                                        .FirstOrDefault(it => it.NamePanel == revitRibbonPanelCustom.NamePanel);
+                                                    if (oldPanel != null)
+                                                    {
+                                                        oldPanel.Buttons.AddRange(revitRibbonPanelCustom.Buttons);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    revitRibbonPanelCustom.AddToComboBox(comboBoxChoose);
+                                                    revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
+                                                }
                                             }
                                         }
                                         else
                                         {
-                                            revitRibbonPanelCustom.AddToComboBox(comboBoxChoose);
-                                            revitRibbonPanelCustoms.Add(revitRibbonPanelCustom);
+                                            PackageLogManager.LogError("Метод GetRevitRibbonPanelCustom не найден.");
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    PackageLogManager.LogError("Конструктор с требуемыми параметрами не найден.");
                                 }
                             }
                             else
                             {
-                                Console.WriteLine($"Тип {typeStart.FullName} не найден в загруженной сборке.");
+                                PackageLogManager.LogError($"Тип производного класса ApplicationStartAnlax не найден через рефлексию. Но найден через Mono.Cecil");
                             }
                         }
                     }
@@ -457,7 +493,7 @@ namespace AnlaxBase
                 catch (Exception ex)
                 {
                     // Логируем ошибки
-                    Console.WriteLine($"Ошибка при обработке {dll}: {ex.Message}");
+                    PackageLogManager.LogError($"Ошибка при обработке {dll}: {ex.Message}");
                 }
             }
 
