@@ -3,8 +3,6 @@
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyFileVersion>1.1.0</AssemblyFileVersion>
-    <Version>1.1.0</Version>
     <ImplicitUsings>true</ImplicitUsings>
     <PublishAddinFiles>true</PublishAddinFiles>
     <Configurations>Debug R20;Debug R21;Debug R22;Debug R23;Debug R24;Debug R25</Configurations>
@@ -34,6 +32,11 @@
   <PropertyGroup Condition="$(Configuration.Contains('R25'))">
     <RevitVersion>2025</RevitVersion>
     <TargetFramework>net8.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyFileVersion>1.1.3</AssemblyFileVersion>
+    <Version>$(RevitVersion).1.1.3</Version>
   </PropertyGroup>
   
   <PropertyGroup>
