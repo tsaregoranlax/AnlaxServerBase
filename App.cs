@@ -93,6 +93,7 @@ namespace AnlaxBase
         {
             try
             {
+                PackageLogManager.ClearLogFile();
                 LaunchAnlaxAutoUpdate();
             }
             catch (Exception ex)
@@ -265,7 +266,7 @@ namespace AnlaxBase
             uiappStart = application;
             AuthSettings auth = AuthSettings.Initialize(true);
             auth.Uiapp = uiappStart;
-            AutoUpdateStart = auth.UdpateStart;
+            AutoUpdateStart = auth.UpdateStart;
             TabName = auth.TabName;
             SubscribeOnButtonCliks();
             try
@@ -392,7 +393,7 @@ namespace AnlaxBase
 
                         if (typeStart != null)
                         {
-                            PackageLogManager.LogInfo("ApplicationStartAnlax найден в " + dllFiles.Length + " сборок");
+                            PackageLogManager.LogInfo("ApplicationStartAnlax найден в " + dll);
                             // Если тип найден, загружаем сборку
                             var assemblyBytes = File.ReadAllBytes(dll);
                             Assembly assembly = Assembly.Load(assemblyBytes);

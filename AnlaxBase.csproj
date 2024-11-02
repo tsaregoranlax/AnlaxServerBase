@@ -3,7 +3,8 @@
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyFileVersion>1.0.10</AssemblyFileVersion>
+    <AssemblyFileVersion>1.1.0</AssemblyFileVersion>
+    <Version>1.1.0</Version>
     <ImplicitUsings>true</ImplicitUsings>
     <PublishAddinFiles>true</PublishAddinFiles>
     <Configurations>Debug R20;Debug R21;Debug R22;Debug R23;Debug R24;Debug R25</Configurations>
@@ -109,7 +110,7 @@
     <None Remove="Icons\Day - Update.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AnlaxPackage" Version="2022.1.0" />
+    <PackageReference Include="AnlaxPackage" Version="2022.1.3" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
   </ItemGroup>
   <ItemGroup>

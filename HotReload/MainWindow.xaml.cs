@@ -43,6 +43,7 @@ namespace AnlaxRevitUpdate
             PluginAutoUpdateDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             GoodDownload = true;
             InitializeComponent();
+            AutoUpdateBox.IsChecked = AuthSettings.Initialize().UpdateStart;
             // Настраиваем UI
             TextBlockMessage.Text = "Не закрывайте окно. Идет проверка обновления плагина Anlax\n";
             ProgressBarDownload.Maximum = listReload.Count + 1;
@@ -52,9 +53,6 @@ namespace AnlaxRevitUpdate
         public void StartUpdate(List<RevitRibbonPanelCustom> listReload)
         {
             int progress = 0;
-            AuthSettings auth = AuthSettings.Initialize();
-            auth.UdpateStart = AutoUpdateBox.IsChecked.Value;
-            auth.SaveJson();
             Task updateTask = Task.Run(() =>
             {
                 foreach (RevitRibbonPanelCustom revitPanel in listReload)
@@ -88,7 +86,6 @@ namespace AnlaxRevitUpdate
                     TextBlockMessage.Text += $"Загрузка AnlaxBaseUpdater. {messageMain}\n";
                     TextBlockMessage.Text += "Все обновления завершены!\n";
                 });
-
                 // Закрываем окно через 2 секунды, если обновления прошли успешно
                 if (GoodDownload)
                 {
@@ -106,9 +103,7 @@ namespace AnlaxRevitUpdate
         public void StartUpdateBehind(List<RevitRibbonPanelCustom> listReload)
         {
             int progress = 0;
-            AuthSettings auth = AuthSettings.Initialize();
-            auth.UdpateStart = AutoUpdateBox.IsChecked.Value;
-            auth.SaveJson();
+
             Dispatcher.Invoke(() => this.Hide());
             Task updateTask = Task.Run(() =>
             {
@@ -143,7 +138,6 @@ namespace AnlaxRevitUpdate
                     TextBlockMessage.Text += $"Загрузка AnlaxBaseUpdater. {messageMain}\n";
                     TextBlockMessage.Text += "Все обновления завершены!\n";
                 });
-
 
                 // Закрываем окно через 2 секунды, если обновления прошли успешно
                 // Проверяем результат и управляем отображением окна через диспетчер
@@ -195,6 +189,9 @@ namespace AnlaxRevitUpdate
         }
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
+            AuthSettings auth = AuthSettings.Initialize();
+            auth.UpdateStart = AutoUpdateBox.IsChecked.Value;
+            auth.SaveJson();
             Close();
         }
 
@@ -211,6 +208,9 @@ namespace AnlaxRevitUpdate
 
         private void Button_Click_Cancel(object sender, RoutedEventArgs e)
         {
+            AuthSettings auth = AuthSettings.Initialize();
+            auth.UpdateStart = AutoUpdateBox.IsChecked.Value;
+            auth.SaveJson();
             Close();
         }
 

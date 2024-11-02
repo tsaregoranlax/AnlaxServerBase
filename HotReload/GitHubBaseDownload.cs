@@ -95,6 +95,11 @@ namespace AnlaxBase.HotReload
 
         public string HotReloadPlugin(bool checkDate)
         {
+            bool endLimit =IsRateLimitExceededAsync().GetAwaiter().GetResult();
+            if (endLimit)
+            {
+                return "Было больше 60 запросов за час. Повторите попытку позже";
+            }
             string result = string.Empty;
             if (checkDate && DateRelease > DateUpdateLocalFile)
             {
@@ -107,6 +112,14 @@ namespace AnlaxBase.HotReload
             result = DownloadReleaseAsset();
             if (result == "Загрузка прошла успешно") DeleteOldAndUpdate();
             return result;
+        }
+
+        public async Task<bool> IsRateLimitExceededAsync()
+        {
+            var client = new GitHubClient(new Octokit.ProductHeaderValue(RepposotoryName + "-Updater"));
+            var rateLimit = await client.RateLimit.GetRateLimits();
+            var coreRateLimit = rateLimit.Resources.Core;
+            return coreRateLimit.Remaining == 0;
         }
 
         public string DownloadReleaseAsset()
