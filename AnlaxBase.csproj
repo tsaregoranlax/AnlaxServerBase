@@ -35,8 +35,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyFileVersion>1.1.3</AssemblyFileVersion>
-    <Version>$(RevitVersion).1.1.3</Version>
+    <AssemblyFileVersion>1.1.4</AssemblyFileVersion>
+    <Version>$(RevitVersion).1.1.4</Version>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -113,7 +113,7 @@
     <None Remove="Icons\Day - Update.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AnlaxPackage" Version="2022.1.3" />
+    <PackageReference Include="AnlaxPackage" Version="$(RevitVersion).*" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
   </ItemGroup>
   <ItemGroup>
