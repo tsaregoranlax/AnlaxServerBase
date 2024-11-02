@@ -68,7 +68,7 @@ namespace AnlaxBase
         {
             get
             {
-                return "ComboBoxChoose" + comboBoxCountReload;
+                return TabName+"ComboBoxChoose" + comboBoxCountReload;
             }
         }
         private int comboBoxCountReload { get; set; }
@@ -265,6 +265,7 @@ namespace AnlaxBase
             uiappStart = application;
             AuthSettings auth = AuthSettings.Initialize(true);
             auth.Uiapp = uiappStart;
+            AutoUpdateStart = auth.UdpateStart;
             TabName = auth.TabName;
             SubscribeOnButtonCliks();
             try
@@ -290,15 +291,14 @@ namespace AnlaxBase
 
             CreateChoosenBox();
             List<string> list = FindDllsWithApplicationStart();
-
-            MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
-            mainWindow.ShowActivated = false;
-            mainWindow.Topmost = false;
-            mainWindow.Show(); // Отображаем окно
-            var revitProcess = Process.GetCurrentProcess();
-
-            mainWindow.StartUpdateBehind(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
-
+            if (AutoUpdateStart)
+            {
+                MainWindow mainWindow = new MainWindow(revitRibbonPanelCustoms);
+                mainWindow.ShowActivated = false;
+                mainWindow.Topmost = false;
+                mainWindow.Show(); // Отображаем окно
+                mainWindow.StartUpdateBehind(revitRibbonPanelCustoms); // Ожидает выполнения обновлений
+            }
             foreach (RevitRibbonPanelCustom revitRibbonPanelCustom1 in revitRibbonPanelCustoms)
             {
                 revitRibbonPanelCustom1.CreateRibbonPanel(uiappStart);
@@ -420,19 +420,14 @@ namespace AnlaxBase
 
                             if (runtimeType != null)
                             {
-                                // Ищем конструктор, соответствующий сигнатуре
-                                var constructor = runtimeType.GetConstructor(new Type[]
-                                {
-        typeof(UIControlledApplication),
-        typeof(string),
-        typeof(string),
-        typeof(Assembly)
-                                });
+                                // Ищем метод "GetRevitRibbonPanelCustom"
+                                var InitMethod = runtimeType.GetMethod("Init");
 
-                                if (constructor != null)
+                                if (InitMethod != null)
                                 {
+                                    object instance = Activator.CreateInstance(runtimeType);
                                     // Создаем экземпляр класса
-                                    object instance = constructor.Invoke(new object[]
+                                    var invokeMethod = InitMethod.Invoke(instance,new object[]
                                     {
             uiappStart,     // UIControlledApplication параметр
             dll,            // PathAssembly параметр
@@ -454,7 +449,8 @@ namespace AnlaxBase
                                             if (revitRibbonPanelCustom != null)
                                             {
                                                 revitRibbonPanelCustom.AssemlyPath = dll;
-
+                                                revitRibbonPanelCustom.AssemblyLoad = assembly;
+                                                revitRibbonPanelCustom.TabName = TabName;
                                                 // Дополнительная обработка, как и в вашем коде
                                                 if (revitRibbonPanelCustoms.Any(it => it.NamePanel == revitRibbonPanelCustom.NamePanel))
                                                 {

@@ -74,11 +74,18 @@ namespace AnlaxBase.HotReload
                     string destinationPath = Path.Combine(extractPath, entry.FullName);
 
                     if (string.IsNullOrEmpty(entry.Name))
+                    {
                         Directory.CreateDirectory(destinationPath);
+                    }
+                        
                     else
                     {
-                        if (File.Exists(destinationPath)) File.Delete(destinationPath);
-                        entry.ExtractToFile(destinationPath, true);
+                        if (File.Exists(destinationPath))
+                        {
+                            File.Delete(destinationPath);
+                            entry.ExtractToFile(destinationPath, true);
+                        }
+
                     }
                 }
             }

@@ -52,7 +52,9 @@ namespace AnlaxRevitUpdate
         public void StartUpdate(List<RevitRibbonPanelCustom> listReload)
         {
             int progress = 0;
-
+            AuthSettings auth = AuthSettings.Initialize();
+            auth.UdpateStart = AutoUpdateBox.IsChecked.Value;
+            auth.SaveJson();
             Task updateTask = Task.Run(() =>
             {
                 foreach (RevitRibbonPanelCustom revitPanel in listReload)
@@ -87,13 +89,12 @@ namespace AnlaxRevitUpdate
                     TextBlockMessage.Text += "Все обновления завершены!\n";
                 });
 
-
                 // Закрываем окно через 2 секунды, если обновления прошли успешно
                 if (GoodDownload)
                 {
                     Dispatcher.Invoke(async () =>
                     {
-                        await Task.Delay(2000);
+                        await Task.Delay(5000);
                         Close();
                     });
                 }
@@ -105,6 +106,9 @@ namespace AnlaxRevitUpdate
         public void StartUpdateBehind(List<RevitRibbonPanelCustom> listReload)
         {
             int progress = 0;
+            AuthSettings auth = AuthSettings.Initialize();
+            auth.UdpateStart = AutoUpdateBox.IsChecked.Value;
+            auth.SaveJson();
             Dispatcher.Invoke(() => this.Hide());
             Task updateTask = Task.Run(() =>
             {
