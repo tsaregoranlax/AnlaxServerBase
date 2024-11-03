@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace AnlaxBase.HotReload
 {
@@ -38,7 +39,7 @@ namespace AnlaxBase.HotReload
 
         public string RevitVersion => Directory.GetParent(Directory.GetParent(AssemlyPath).FullName).Name;
 
-        public string ReleaseTag => "Release22";
+        public string ReleaseTag => "Release";
 
         public DateTime DateRelease => Release?.PublishedAt?.DateTime ?? DateTime.MinValue;
 
@@ -50,6 +51,51 @@ namespace AnlaxBase.HotReload
                 var releases = client.Repository.Release.GetAll(OwnerName, RepposotoryName).Result;
                 return releases.FirstOrDefault(r => r.Name == ReleaseTag);
             }
+        }
+        public string CurrentVersion
+        {
+            get
+            {
+                if (!File.Exists(AssemlyPath))
+                    return "1.0.0";
+
+                var versionInfo = FileVersionInfo.GetVersionInfo(AssemlyPath);
+                string version = versionInfo.FileVersion;
+
+                // Преобразуем версию в формат 2022.1.1.2
+                string formattedVersion = $"{versionInfo.ProductMajorPart}.{versionInfo.ProductMinorPart}.{versionInfo.ProductBuildPart}.{versionInfo.ProductPrivatePart}";
+
+                // Убираем первые четыре знака и точку
+                string result = formattedVersion.Substring(5);
+                return result;
+            }
+        }
+
+        public string ReleaseVersion
+        {
+            get
+            {
+                if (Release != null && !string.IsNullOrEmpty(Release.TagName))
+                {
+                    string tagRelease = Release.TagName;
+                    // Убираем слова "Release" и "Debug" из TagName
+                    string cleanTag = tagRelease.Replace("Debug", "").Replace("Release", "").Trim();
+                    // Возвращаем очищенный TagName
+                    return cleanTag;
+                }
+                return "1.0.0";
+            }
+        }
+        public bool IsReleaseVersionGreater()
+        {
+            // Пробуем создать объекты Version из строк версий
+            if (Version.TryParse(CurrentVersion, out var currentVersion) &&
+                Version.TryParse(ReleaseVersion, out var releaseVersion))
+            {
+                // Сравниваем версии: возвращает true, если ReleaseVersion > CurrentVersion
+                return releaseVersion > currentVersion;
+            }
+            return false;
         }
 
         public ReleaseAsset ReleaseAsset => Release?.Assets.FirstOrDefault(a => a.Name == FolderName + ".zip");
@@ -101,7 +147,7 @@ namespace AnlaxBase.HotReload
                 return "Было больше 60 запросов за час. Повторите попытку позже";
             }
             string result = string.Empty;
-            if (checkDate && DateRelease > DateUpdateLocalFile)
+            if (checkDate && IsReleaseVersionGreater())
             {
                 result = DownloadReleaseAsset();
                 if (result == "Загрузка прошла успешно") DeleteOldAndUpdate();
