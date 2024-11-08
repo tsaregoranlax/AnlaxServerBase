@@ -68,7 +68,7 @@ namespace AnlaxRevitUpdate
                     Dispatcher.Invoke(() =>
                     {
                         ProgressBarDownload.Value = progress;
-                        TextBlockMessage.Text += $"Загрузка {plugName}. {message}\n";
+                        TextBlockMessage.Text += $"Проверка {plugName}. {message}\n";
                         TextBlockDownload.Text = $"{progress}/{listReload.Count + 1} загружено";
                     });
 
@@ -94,7 +94,7 @@ namespace AnlaxRevitUpdate
                 {
                     Dispatcher.Invoke(async () =>
                     {
-                        await Task.Delay(5000);
+                        await Task.Delay(45000);
                         Close();
                     });
                 }
@@ -120,7 +120,7 @@ namespace AnlaxRevitUpdate
                     Dispatcher.Invoke(() =>
                     {
                         ProgressBarDownload.Value = progress;
-                        TextBlockMessage.Text += $"Загрузка {plugName}. {message}\n";
+                        TextBlockMessage.Text += $"Проверка {plugName}. {message}\n";
                         TextBlockDownload.Text = $"{progress}/{listReload.Count + 1} загружено";
                     });
 
