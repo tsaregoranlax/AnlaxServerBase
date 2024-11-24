@@ -162,7 +162,7 @@ namespace AnlaxRevitUpdate
         }
         private string ReloadMainPlug()
         {
-            string pathToBaseDll = System.IO.Path.Combine(PluginAutoUpdateDirectory, "AutoUpdate\\AnlaxRevitUpdate.dll");
+            string pathToBaseDll = System.IO.Path.Combine(PluginAutoUpdateDirectory, "AutoUpdate\\AnlaxRevitUpdate.exe");
             string userName = "anlaxtech";
             string repposotoryName = "AnlaxRevitUpdate";
             GitHubBaseDownload gitHubBaseDownload = new GitHubBaseDownload(pathToBaseDll, userName, repposotoryName, "AutoUpdate");
