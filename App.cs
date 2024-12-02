@@ -60,6 +60,13 @@ namespace AnlaxBase
 
             }
         }
+        public string DllName
+        {
+            get
+            {
+                return Assembly.GetExecutingAssembly().GetName().Name;
+            }
+        }
 
         private List<RevitRibbonPanelCustom> revitRibbonPanelCustoms = new List<RevitRibbonPanelCustom>();
 
@@ -300,18 +307,18 @@ namespace AnlaxBase
             catch { }
             ribbonPanelBase = application.CreateRibbonPanel(TabName, SettingPanelName);
             PushButtonData pushButtonData = new PushButtonData(nameof(OpenWebHelp), "База\nзнаний", assemblyLocation, typeof(OpenWebHelp).FullName);
-            pushButtonData.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/Day - Knowledge base.png", UriKind.RelativeOrAbsolute));
+            pushButtonData.LargeImage = new BitmapImage(new Uri($@"/{DllName};component/Icons/Day - Knowledge base.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonData);
-
+            
             PushButtonData pushButtonDataAuth = new PushButtonData(nameof(AuthStart), "Войти в\nсистему", assemblyLocation, typeof(AuthStart).FullName);
-            pushButtonDataAuth.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/Day - Log in.png", UriKind.RelativeOrAbsolute));
+            pushButtonDataAuth.LargeImage = new BitmapImage(new Uri($@"/{DllName};component/Icons/Day - Log in.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonDataAuth);
 
             PushButtonData pushButtonDataHotReload = new PushButtonData(nameof(HotLoad), "Обновить\nплагин", assemblyLocation, typeof(HotLoad).FullName);
-            pushButtonDataHotReload.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/Day - Update.png", UriKind.RelativeOrAbsolute));
+            pushButtonDataHotReload.LargeImage = new BitmapImage(new Uri($@"/{DllName};component/Icons/Day - Update.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonDataHotReload);
             PushButtonData pushButtonDataHotLoad = new PushButtonData(nameof(EmptyCommand), "Последняя\nкоманда", assemblyLocation, typeof(EmptyCommand).FullName);
-            pushButtonDataHotLoad.LargeImage = new BitmapImage(new Uri(@"/AnlaxBase;component/Icons/Day - Last command.png", UriKind.RelativeOrAbsolute));
+            pushButtonDataHotLoad.LargeImage = new BitmapImage(new Uri($@"/{DllName};component/Icons/Day - Last command.png", UriKind.RelativeOrAbsolute));
             ribbonPanelBase.AddItem(pushButtonDataHotLoad);
 
             CreateChoosenBox();
