@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace AnlaxBase
+namespace AnlaxBaseServer
 {
     [Transaction(TransactionMode.Manual)]
     public class OpenWebHelp : IExternalCommand

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnlaxBase", "AnlaxBase.csproj", "{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnlaxBaseServer", "AnlaxBaseServer.csproj", "{1F64E8E6-F7F1-476B-88D8-F24DF7F6E223}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,7 +50,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		    SolutionGuid = {F51660A1-7192-4C25-8F05-48D63B536FCA}
 		SolutionGuid = {D46CA748-0DB8-45BB-8C31-651333356953}
+		    SolutionGuid = {F51660A1-7192-4C25-8F05-48D63B536FCA}
 	EndGlobalSection
 EndGlobal
