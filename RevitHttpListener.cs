@@ -12,7 +12,7 @@ namespace AnlaxBaseServer
         private readonly RequestHandler _requestHandler;
 
         public RevitHttpListener(
-            RequestHandler requestHandler)
+            RequestHandler requestHandler, string port)
         {
             if (!HttpListener.IsSupported)
             {
@@ -21,7 +21,6 @@ namespace AnlaxBaseServer
             }
 
             var url = "http://127.0.0.1";
-            string port = "8080";
             string prefix = $"{url}:{port}/";
             _listener = new HttpListener();
             _listener.Prefixes.Add(prefix);

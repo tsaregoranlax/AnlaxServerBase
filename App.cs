@@ -31,7 +31,7 @@ namespace AnlaxBaseServer
         public class RemoteControl : IExternalApplication
         {
             private bool _started;
-
+        private string _port;
             public Result Execute(
                 ExternalCommandData commandData,
                 ref string message,
@@ -46,9 +46,25 @@ namespace AnlaxBaseServer
             {
                 return Result.Succeeded;
             }
-
-            public Result OnStartup(UIControlledApplication application)
+        private string GetPortFromCommandLineArguments()
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (string arg in args)
             {
+                if (arg.StartsWith("/port:", StringComparison.OrdinalIgnoreCase))
+                {
+                    return arg.Substring("/port:".Length);
+                }
+            }
+            return null;
+        }
+        public Result OnStartup(UIControlledApplication application)
+            {
+            _port = GetPortFromCommandLineArguments();
+            if (string.IsNullOrEmpty(_port)) // Если ревит запушен вручную. То плагин не запускаем
+            {
+                return Result.Succeeded;
+            }
             string DllName = Assembly.GetExecutingAssembly().GetName().Name;
             string assemblyLocation = Assembly.GetExecutingAssembly().Location;
             application.Idling += ApplicationOnIdling;
@@ -84,7 +100,7 @@ namespace AnlaxBaseServer
             {
                 var handler = new RequestHandler();
 
-                var listener = new RevitHttpListener(handler);
+                var listener = new RevitHttpListener(handler, _port);
 
                 Task.Run(() => listener.Start());
             }

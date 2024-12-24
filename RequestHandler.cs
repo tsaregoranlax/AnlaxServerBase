@@ -13,17 +13,60 @@ namespace AnlaxBaseServer
     {
         private readonly RevitTask _revitTask = new RevitTask();
 
+        public Document OpenDocumentDetach(string PathStart, UIApplication uiapp, bool saveworkset = true)
+        {
+                Document documentOut = null;
+                OpenOptions openOptions = new OpenOptions();
+                openOptions.AllowOpeningLocalByWrongUser = true;
+                openOptions.DetachFromCentralOption = DetachFromCentralOption.DetachAndDiscardWorksets;
+                if (saveworkset)
+                {
+                    openOptions.DetachFromCentralOption = DetachFromCentralOption.DetachAndPreserveWorksets;
+                }
+                ModelPath modelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(PathStart);
+                IList<WorksetId> worksetIds = new List<WorksetId>();
+
+                try //Попытка отключить рабочие наборы со связями для ускорения процесса
+                {
+                    IList<WorksetPreview> worksets = WorksharingUtils.GetUserWorksetInfo(modelPath);
+                    foreach (WorksetPreview worksetPrev in worksets)
+                    {
+                        if (!worksetPrev.Name.ToLower().Contains("link"))
+                        {
+                            worksetIds.Add(worksetPrev.Id);
+                        }
+                    }
+                    WorksetConfiguration openConfig = new WorksetConfiguration(WorksetConfigurationOption.CloseAllWorksets);
+                    openConfig.Open(worksetIds);
+                    openOptions.SetOpenWorksetsConfiguration(openConfig);
+
+                }
+                catch
+                {
+                }
+                try
+                {
+                documentOut = uiapp.OpenAndActivateDocument(ModelPathUtils.ConvertUserVisiblePathToModelPath(PathStart), openOptions,true).Document;
+
+                    return documentOut;
+                }
+                catch (Exception ex)
+                {
+
+                    return documentOut;
+                }
+
+        }
+
         private string TestFunction (UIApplication uiapp)
         {
             Application app = uiapp.Application;
-            Document doc = null;
 
             try
             {
                 // Создание нового документа
-                string templatePath = "C:\\ProgramData\\Autodesk\\RVT 2022\\Templates\\Default_M_RUS.rte";
-                doc = app.NewProjectDocument(templatePath);
-
+                string templatePath = "C:\\Users\\tsare\\Desktop\\Temp\\1 вариант\\sd.rvt";
+                Document doc = OpenDocumentDetach(templatePath, uiapp);
                 using (Transaction trans = new Transaction(doc, "Create Wall"))
                 {
                     trans.Start();
@@ -120,7 +163,7 @@ namespace AnlaxBaseServer
                 task = _revitTask
                     .Run((uiapp) =>
                     {
-                        string Jsonrequest = request.Replace("EXPORT", "");
+                        string Jsonrequest = decodedPath.Replace("EXPORT", "");
                         TestFunction(uiapp);
                         return new[] { decodedPath };
                     });
